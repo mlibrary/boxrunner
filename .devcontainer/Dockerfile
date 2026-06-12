@@ -5,8 +5,7 @@ FROM docker.io/library/ruby:${RUBY_VERSION}-slim
 
 WORKDIR /rails
 
-ENV BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_JOBS="4" \
+ENV BUNDLE_JOBS="4" \
     BUNDLE_RETRY="3" \
     PATH="/usr/local/node/bin:${PATH}" \
     LD_PRELOAD="/usr/local/lib/libjemalloc.so"
@@ -29,7 +28,7 @@ COPY package.json yarn.lock ./
 COPY vendor/ ./vendor/
 
 RUN bundle install && \
-    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
+    rm -rf ~/.bundle/ "${GEM_HOME}"/cache "${GEM_HOME}"/bundler/gems/*/.git && \
     yarn install --immutable
 
 RUN groupadd --system --gid 1000 rails && \
@@ -38,4 +37,3 @@ RUN groupadd --system --gid 1000 rails && \
 USER rails
 
 CMD ["sleep", "infinity"]
-
