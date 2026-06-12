@@ -18,6 +18,11 @@ Rails.application.configure do
   # Cache assets for far-future expiry since they are all digest stamped.
   config.public_file_server.headers = { "cache-control" => "public, max-age=#{1.year.to_i}" }
 
+  # CSS is already compiled and prefixed by cssbundling-rails (yarn build:css),
+  # so disable Sprockets' Sass compressor (added by sassc-rails). Re-running
+  # SassC over the bundled application.css breaks on Bootstrap's url(...) assets.
+  config.assets.css_compressor = nil
+
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.asset_host = "http://assets.example.com"
 
