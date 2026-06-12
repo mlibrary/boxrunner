@@ -28,6 +28,28 @@ services:
     volumes:
       - redis-data:/data
     command: redis-server --appendonly yes
+  resque:
+    depends_on:
+      redis:
+        condition: service_healthy
+    build:
+      context: .
+    environment:
+      - SOLR_URL=http://solr:8983/solr/blacklight-collection
+      - REDIS_URL=redis://redis:6379/0
+      - QUEUE=*
+    env_file:
+      - .env
+    command: bundle exec rake environment resque:work
+  resque-web:
+    depends_on:
+      redis:
+        condition: service_healthy
+    build:
+      context: .
+    ports:
+      - '5678:5678'
+    command: bundle exec resque-web -F -L -p 5678 -r redis://redis:6379/0 -N resque:boxrunner
   solr:
     depends_on:
       zookeeper:
