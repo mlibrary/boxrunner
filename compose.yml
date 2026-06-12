@@ -47,9 +47,12 @@ services:
         condition: service_healthy
     build:
       context: .
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - RESQUE_NAMESPACE=resque:boxrunner
     ports:
       - '5678:5678'
-    command: bundle exec resque-web -F -L -p 5678 -r redis://redis:6379/0 -N resque:boxrunner
+    command: bundle exec rackup -o 0.0.0.0 -p 5678 config/resque_web.ru
   solr:
     depends_on:
       zookeeper:
