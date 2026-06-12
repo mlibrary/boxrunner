@@ -70,6 +70,7 @@ gem "arclight"
 
 group :development, :test do
   gem "solr_wrapper", ">= 0.3"
+  gem 'rspec-rails', '~> 8.0'
 end
 gem "rsolr", ">= 1.0", "< 3"
 gem "bootstrap", "~> 5.3"
