@@ -1,7 +1,7 @@
 services:
   app:
     build:
-      context: ..
+      context: .
       dockerfile: .devcontainer/Dockerfile
       args:
         DEVCONTAINER_INSTALL_ONLY: "1"
