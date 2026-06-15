@@ -1,7 +1,7 @@
-require 'dul_arclight/errors'
-require 'um_arclight/errors'
+# require 'dul_arclight/errors'       # TODO: add dul_arclight gem
+# require 'um_arclight/errors'         # TODO: add um_arclight gem
 
-require_dependency "um_arclight/package/generator"
+# require_dependency "um_arclight/package/generator"  # TODO: add um_arclight gem
 
 class IndexFindingAidJob < ApplicationJob
   queue_as :index
