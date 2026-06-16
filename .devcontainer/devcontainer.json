@@ -14,7 +14,7 @@
     "8983": { "label": "Solr" },
     "2181": { "label": "ZooKeeper" }
   },
-  "postCreateCommand": "RAILS_ENV=development bin/setup --skip-server",
+  "postCreateCommand": "mkdir -p vendor/bundle .bundle && bundle config set --local path vendor/bundle && bundle config set --local disable_shared_gems true && RAILS_ENV=development bin/setup --skip-server",
   "customizations": {
     "jetbrains": {
       "backend": "RubyMine",
