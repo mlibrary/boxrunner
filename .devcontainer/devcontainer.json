@@ -3,12 +3,12 @@
   "dockerComposeFile": ["../compose.yml", "compose.yml"],
   "service": "app",
   "workspaceFolder": "/rails",
-  "runServices": ["solr", "zookeeper","redis","resque","resque-web"],
+  "runServices": ["solr", "zookeeper", "redis", "resque", "resque-web"],
   "shutdownAction": "stopCompose",
   "overrideCommand": true,
   "remoteUser": "rails",
   "updateRemoteUserUID": true,
-  "forwardPorts": [3000, 8983, 2181,6379,5678],
+  "forwardPorts": [3000, 8983, 2181, 6379, 5678],
   "portsAttributes": {
     "3000": { "label": "Rails app" },
     "8983": { "label": "Solr" },
@@ -24,6 +24,6 @@
         "com.github.copilot",
         "com.github.jetbrains.plugins.github_copilot_premium_quota_monitor.github-copilot-premium-quota-monitor-for-ij"
       ]
-    },
+    }
   }
 }
