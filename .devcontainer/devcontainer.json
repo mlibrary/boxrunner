@@ -3,16 +3,18 @@
   "dockerComposeFile": ["../compose.yml", "compose.yml"],
   "service": "app",
   "workspaceFolder": "/rails",
-  "runServices": ["solr", "zookeeper"],
+  "runServices": ["solr", "zookeeper","redis","resque","resque-web"],
   "shutdownAction": "stopCompose",
   "overrideCommand": true,
   "remoteUser": "rails",
   "updateRemoteUserUID": true,
-  "forwardPorts": [3000, 8983, 2181],
+  "forwardPorts": [3000, 8983, 2181,6379,5678],
   "portsAttributes": {
     "3000": { "label": "Rails app" },
     "8983": { "label": "Solr" },
-    "2181": { "label": "ZooKeeper" }
+    "2181": { "label": "ZooKeeper" },
+    "6379": { "label": "Redis" },
+    "5678": { "label": "Resque-Web" }
   },
   "postCreateCommand": "mkdir -p vendor/bundle .bundle && bundle config set --local path vendor/bundle && bundle config set --local disable_shared_gems true && RAILS_ENV=development bin/setup --skip-server",
   "customizations": {
@@ -23,13 +25,5 @@
         "com.github.jetbrains.plugins.github_copilot_premium_quota_monitor.github-copilot-premium-quota-monitor-for-ij"
       ]
     },
-    "vscode": {
-      "extensions": [
-        "Shopify.ruby-lsp",
-        "castwide.solargraph",
-        "misogi.ruby-rubocop",
-        "esbenp.prettier-vscode"
-      ]
-    }
   }
 }
