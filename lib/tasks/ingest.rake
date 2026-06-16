@@ -8,11 +8,15 @@ namespace :arclight do
   # FIXME: SHAMELESS copy of dul_arclight:reindex_everything for now
   desc 'Reingest all finding aids in the data directory via background jobs'
   task ingest_everything: :environment do
-    puts "Looking in #{DulArclight.finding_aid_data} ..."
+    data_path = "./data/ead"
+    puts "Looking in #{data_path} ..."
 
     # Find our configured repositories, get their IDs
     repo_config.keys.each do |repo_id|
-      Dir.glob(File.join(DulArclight.finding_aid_data, 'ead', repo_id, '*.xml')) do |path|
+      puts "repo ID : #{repo_id}"
+      puts "working directory : "
+      Dir.glob(File.join(Rails.root, "data", 'ead', repo_id, '*.xml')) do |path|
+        puts "Queuing #{path} for Ingest..."
         IngestAutomationJob.perform_later('ingest.file', repo_id: repo_id, file_path: path)
       end
     end
