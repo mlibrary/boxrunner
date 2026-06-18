@@ -14,7 +14,7 @@ class IndexFindingAidJob < ApplicationJob
       # A Traject reader which reads XML, and yields zero to many Nokogiri::XML::Document
       # objects as source records in the traject pipeline. The default is to yield the _entire_ input XML
       # as a single traject source record.
-      DulArclight::Traject::DulCompressedReader.new(file, {}).each do |doc|
+      Box::Traject::CompressedReader.new(file, {}).each do |doc|
         indexer = Traject::Indexer::NokogiriIndexer.new(
           # Keep things simple and not interfering with Rails
           "processing_thread_pool" => 0, # disable Indexer processing thread pool
@@ -25,7 +25,7 @@ class IndexFindingAidJob < ApplicationJob
         )
 
         # Note that keys passed in as an initializer arg will "override" any settings set with provide in config.
-        indexer.load_config_file(Rails.root.join("lib/dul_arclight/traject/ead2_config.rb"))
+        indexer.load_config_file(Rails.root.join("lib/box/traject/ead2_config.rb"))
 
         # #process_record takes a single source record, sends it thorough transformation,
         # and sends the output the instance-configured writer. No logging, threading,
@@ -40,7 +40,7 @@ class IndexFindingAidJob < ApplicationJob
 
         # Make an archive copy of source file available for downloading.
         ead_id = context.output_hash['id']&.first
-        dest_dir = File.join(DulArclight.finding_aid_data, "xml", repo_id)
+        dest_dir = File.join(Box.finding_aid_data, "xml", repo_id)
         dest_path = File.join(dest_dir, "#{ead_id}.xml")
         FileUtils.mkdir_p(dest_dir)
         FileUtils.copy_file(src_path, dest_path, preserve: true, dereference: true, remove_destination: true)
@@ -50,6 +50,6 @@ class IndexFindingAidJob < ApplicationJob
     end
   rescue => e
     ::IngestAutomationJob.perform_later('index.failure', src_path: src_path, archive_path: dest_path, ead_id: ead_id, err_msg: e.message)
-    raise DulArclight::IndexError, e.message
+    raise Box::IndexError, e.message
   end
 end

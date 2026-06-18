@@ -25,7 +25,7 @@ RSpec.describe IndexFindingAidJob, type: :job do
   let(:eadid_slug) { "eadid.slug" }
   let(:repo_id) { 'repo' }
   let(:repository) { class_double("Arclight::Repository", "repository", name: "repository") }
-  let(:dest_dir) { "#{DulArclight.finding_aid_data}/xml/#{repo_id}" }
+  let(:dest_dir) { "data/xml/#{repo_id}" }
   let(:dest_path) { "#{dest_dir}/#{eadid_slug}.xml" }
   let(:err_msg) { "Error Message" }
 
@@ -67,12 +67,12 @@ RSpec.describe IndexFindingAidJob, type: :job do
       let(:eadid) { "" }
 
       it 'raises an exception' do
-        expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(DulArclight::IndexError, err_msg)
+        expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(Box::IndexError, err_msg)
         expect(IngestAutomationJob).to have_received(:perform_later).with('index.failure', src_path: src_path, archive_path: nil, ead_id: nil, err_msg: err_msg)
       end
 
       it 'does NOT copy source file to data xml repo directory' do
-        expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(DulArclight::IndexError, err_msg)
+        expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(Box::IndexError, err_msg)
         expect(FileUtils).not_to have_received(:mkdir_p).with(dest_path)
         expect(FileUtils).not_to have_received(:copy_file).with(src_path, dest_path, {dereference: true, preserve: true, remove_destination: true})
       end
@@ -82,12 +82,12 @@ RSpec.describe IndexFindingAidJob, type: :job do
       let(:eadid_tag) { "" }
 
       it 'raises an exception' do
-        expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(DulArclight::IndexError, err_msg)
+        expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(Box::IndexError, err_msg)
         expect(IngestAutomationJob).to have_received(:perform_later).with('index.failure', src_path: src_path, archive_path: nil, ead_id: nil, err_msg: err_msg)
       end
 
       it 'does NOT copy source file to data xml repo directory' do
-        expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(DulArclight::IndexError, err_msg)
+        expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(Box::IndexError, err_msg)
         expect(FileUtils).not_to have_received(:mkdir_p).with(dest_path)
         expect(FileUtils).not_to have_received(:copy_file).with(src_path, dest_path, {dereference: true, preserve: true, remove_destination: true})
       end
@@ -100,12 +100,12 @@ RSpec.describe IndexFindingAidJob, type: :job do
     end
 
     it 'raises an exception' do
-      expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(DulArclight::IndexError, err_msg)
+      expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(Box::IndexError, err_msg)
       expect(IngestAutomationJob).to have_received(:perform_later).with('index.failure', src_path: src_path, archive_path: nil, ead_id: nil, err_msg: err_msg)
     end
 
     it 'does NOT copy source file to data xml repo directory' do
-      expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(DulArclight::IndexError, err_msg)
+      expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(Box::IndexError, err_msg)
       expect(FileUtils).not_to have_received(:mkdir_p).with(dest_path)
       expect(FileUtils).not_to have_received(:copy_file).with(src_path, dest_path, {dereference: true, preserve: true, remove_destination: true})
     end
@@ -116,12 +116,12 @@ RSpec.describe IndexFindingAidJob, type: :job do
     let(:err_msg) { /no implicit conversion of nil into String/ }
 
     it 'raises an exception' do
-      expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(DulArclight::IndexError, err_msg)
+      expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(Box::IndexError, err_msg)
       expect(IngestAutomationJob).to have_received(:perform_later).with('index.failure', src_path: src_path, archive_path: nil, ead_id: eadid_slug, err_msg: err_msg)
     end
 
     it 'does NOT copy source file to data xml repo directory' do
-      expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(DulArclight::IndexError, err_msg)
+      expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(Box::IndexError, err_msg)
       expect(FileUtils).not_to have_received(:mkdir_p).with(dest_path)
       expect(FileUtils).not_to have_received(:copy_file).with(src_path, dest_path, {dereference: true, preserve: true, remove_destination: true})
     end
@@ -135,12 +135,12 @@ RSpec.describe IndexFindingAidJob, type: :job do
     end
 
     it 'raises an exception' do
-      expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(DulArclight::IndexError, err_msg)
+      expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(Box::IndexError, err_msg)
       expect(IngestAutomationJob).to have_received(:perform_later).with('index.failure', src_path: src_path, archive_path: nil, ead_id: nil, err_msg: err_msg)
     end
 
     it 'does NOT copy source file to data xml repo directory' do
-      expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(DulArclight::IndexError, err_msg)
+      expect { described_class.perform_now(src_path, repo_id) }.to raise_exception(Box::IndexError, err_msg)
       expect(FileUtils).not_to have_received(:mkdir_p).with(dest_path)
       expect(FileUtils).not_to have_received(:copy_file).with(src_path, dest_path, {dereference: true, preserve: true, remove_destination: true})
     end
