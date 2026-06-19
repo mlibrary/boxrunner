@@ -43,7 +43,7 @@ gem "thruster", require: false
 gem "image_processing", "~> 2.0"
 
 # job worker queue
-gem "resque", "~> 2.6"
+gem "resque", "~> 3.0"
 gem "redis"
 gem "resque-scheduler"
 gem "resque-web"
