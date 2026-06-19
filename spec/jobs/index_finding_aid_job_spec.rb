@@ -24,5 +24,13 @@ RSpec.describe IndexFindingAidJob, type: :job do
     expect { described_class.perform_now(src_path, repo_id) }.not_to raise_error
     expect(FindingAids::IndexFromEad).to have_received(:call).with(src_path, repo_id)
   end
+
+  it 'enqueues an index.failure event when indexing fails' do
+    allow(FindingAids::IndexFromEad).to receive(:call).and_raise(Box::IndexError, 'boom')
+    allow(IngestAutomationJob).to receive(:perform_later)
+    expect { described_class.perform_now(src_path, repo_id) }.not_to raise_error
+    expect(IngestAutomationJob).to have_received(:perform_later)
+      .with('index.failure', src_path: src_path, repo_id: repo_id, ead_id: nil, err_msg: 'boom')
+  end
 end
 

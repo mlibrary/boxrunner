@@ -34,11 +34,11 @@ module FindingAids
           FileUtils.mkdir_p(dest_dir)
           FileUtils.copy_file(src_path, dest_path, preserve: true, dereference: true, remove_destination: true)
 
-          ::IngestAutomationJob.perform_later('index.success', src_path: src_path, archive_path: dest_path, ead_id: ead_id)
+          # ::IngestAutomationJob.perform_later('index.success', src_path: src_path, archive_path: dest_path, ead_id: ead_id)
         end
       end
     rescue => e
-      ::IngestAutomationJob.perform_later('index.failure', src_path: src_path, archive_path: dest_path, ead_id: ead_id, err_msg: e.message)
+      # ::IngestAutomationJob.perform_later('index.failure', src_path: src_path, archive_path: dest_path, ead_id: ead_id, err_msg: e.message)
       raise Box::IndexError, e.message
     end
   end
