@@ -20,33 +20,29 @@ RSpec.describe FindingAid::PackageArtifact do
     allow(UmArclight::Package::Generator).to receive(:new).with(identifier: identifier).and_return(generator)
     allow(generator).to receive(:generate_html)
     allow(generator).to receive(:generate_pdf)
-    allow(IngestAutomationJob).to receive(:perform_later)
   end
 
   context 'when the format is html' do
-    it 'generates html and enqueues an html.success event' do
+    it 'generates html' do
       expect { described_class.call(identifier, 'html') }.not_to raise_error
       expect(generator).to have_received(:generate_html)
       expect(generator).not_to have_received(:generate_pdf)
-      expect(IngestAutomationJob).to have_received(:perform_later).with('html.success', ead_id: identifier)
     end
   end
 
   context 'when the format is pdf' do
-    it 'generates pdf and enqueues a pdf.success event' do
+    it 'generates pdf' do
       expect { described_class.call(identifier, 'pdf') }.not_to raise_error
       expect(generator).to have_received(:generate_pdf)
       expect(generator).not_to have_received(:generate_html)
-      expect(IngestAutomationJob).to have_received(:perform_later).with('pdf.success', ead_id: identifier)
     end
   end
 
   context 'when the format is unsupported' do
-    it 'raises a GenerateError without generating or enqueuing' do
+    it 'raises a GenerateError without generating' do
       expect { described_class.call(identifier, 'txt') }
         .to raise_error(UmArclight::GenerateError, identifier)
       expect(UmArclight::Package::Generator).not_to have_received(:new)
-      expect(IngestAutomationJob).not_to have_received(:perform_later)
     end
   end
 
@@ -55,11 +51,9 @@ RSpec.describe FindingAid::PackageArtifact do
       allow(generator).to receive(:generate_html).and_raise(StandardError, 'boom')
     end
 
-    it 'enqueues a failure event and re-raises as a GenerateError' do
+    it 're-raises as a GenerateError' do
       expect { described_class.call(identifier, 'html') }
         .to raise_error(UmArclight::GenerateError, identifier)
-      expect(IngestAutomationJob).to have_received(:perform_later).with('html.failure', ead_id: identifier)
-      expect(IngestAutomationJob).not_to have_received(:perform_later).with('html.success', ead_id: identifier)
     end
   end
 end

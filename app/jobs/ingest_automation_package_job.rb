@@ -9,5 +9,8 @@ class IngestAutomationPackageJob < ApplicationJob
 
   def perform(identifier, format)
     FindingAid::PackageArtifact.call(identifier, format)
+    IngestAutomationJob.perform_later("#{format}.success", ead_id: identifier, err_msg: nil)
+  rescue ::UmArclight::GenerateError => e
+    IngestAutomationJob.perform_later("#{format}.failure", ead_id: identifier, err_msg: e.message)
   end
 end
