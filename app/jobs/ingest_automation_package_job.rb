@@ -4,7 +4,7 @@
 # require 'um_arclight/package/generator'  # TODO: add um_arclight gem
 
 # Job to queue packaging
-class PackageFindingAidJob < ApplicationJob
+class IngestAutomationPackageJob < ApplicationJob
   queue_as :index
 
   def perform(identifier, format)

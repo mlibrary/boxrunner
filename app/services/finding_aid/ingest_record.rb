@@ -10,7 +10,7 @@ module FindingAid
       begin
         path = File.join(ENV["FINDING_AID_DATA"], "findingaids", findingaid.id.to_s)
         Rails.logger.info "Beginning Finding Aid ingest to repository '#{findingaid.reposlug}' of EAD file #{path}"
-        IndexFindingAidJob.perform_now(path, findingaid.reposlug)
+        IngestAutomationIndexJob.perform_now(path, findingaid.reposlug)
       rescue => e
         findingaid.error = "ERROR: IndexFindAidJob.perform_now(#{path}, #{findingaid.reposlug}) #{e.message}"
         findingaid.state = "errored"

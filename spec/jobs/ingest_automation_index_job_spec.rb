@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe IndexFindingAidJob, type: :job do
+RSpec.describe IngestAutomationIndexJob, type: :job do
   include ActiveJob::TestHelper
 
   let(:src_path) { 'path/to/file.xml' }
@@ -29,9 +29,9 @@ RSpec.describe IndexFindingAidJob, type: :job do
 
   it 'enqueues an index.failure event when indexing fails' do
     allow(FindingAid::IndexFromEad).to receive(:call).and_raise(FindingAidIndexError, 'boom')
-    allow(IngestFindingAidJob).to receive(:perform_later)
+    allow(IngestAutomationJob).to receive(:perform_later)
     expect { described_class.perform_now(src_path, repo_id) }.not_to raise_error
-    expect(IngestFindingAidJob).to have_received(:perform_later)
+    expect(IngestAutomationJob).to have_received(:perform_later)
       .with('index.failure', src_path: src_path, repo_id: repo_id, ead_id: nil, err_msg: 'boom')
   end
 end

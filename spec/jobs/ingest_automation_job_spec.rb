@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe IngestFindingAidJob, type: :job do
+RSpec.describe IngestAutomationJob, type: :job do
   describe 'queue' do
     it 'is enqueued on the default queue' do
       expect(described_class.new("event", {}).queue_name).to eq('ingest')
@@ -37,17 +37,17 @@ RSpec.describe IngestFindingAidJob, type: :job do
   #   let(:logger) { instance_double(Logger, info: nil, error: nil) }
   #
   #   before do
-  #     allow(IndexFindingAidJob).to receive(:perform_later)
-  #     allow(PackageFindingAidJob).to receive(:perform_later)
-  #     allow(IngestFindingAidJob).to receive(:perform_later)
+  #     allow(IngestAutomationIndexJob).to receive(:perform_later)
+  #     allow(IngestAutomationPackageJob).to receive(:perform_later)
+  #     allow(IngestAutomationJob).to receive(:perform_later)
   #   end
   #
-  #   it 'dispatches ingest.file to IndexFindingAidJob' do
+  #   it 'dispatches ingest.file to IngestAutomationIndexJob' do
   #     details = { repo_id: 'repo', file_path: '/tmp/example.xml' }
   #
   #     described_class.call('ingest.file', details, logger: logger)
   #
-  #     expect(IndexFindingAidJob).to have_received(:perform_later).with('/tmp/example.xml', 'repo')
+  #     expect(IngestAutomationIndexJob).to have_received(:perform_later).with('/tmp/example.xml', 'repo')
   #   end
   #
   #   it 'dispatches index.success to html packaging' do
@@ -55,19 +55,19 @@ RSpec.describe IngestFindingAidJob, type: :job do
   #
   #     described_class.call('index.success', details, logger: logger)
   #
-  #     expect(PackageFindingAidJob).to have_received(:perform_later).with('eadid', 'html')
+  #     expect(IngestAutomationPackageJob).to have_received(:perform_later).with('eadid', 'html')
   #   end
   #
   #   it 'dispatches html.success to pdf packaging' do
   #     described_class.call('html.success', { ead_id: 'eadid' }, logger: logger)
   #
-  #     expect(PackageFindingAidJob).to have_received(:perform_later).with('eadid', 'pdf')
+  #     expect(IngestAutomationPackageJob).to have_received(:perform_later).with('eadid', 'pdf')
   #   end
   #
   #   it 'dispatches pdf.success to ingest.success event' do
   #     described_class.call('pdf.success', { ead_id: 'eadid' }, logger: logger)
   #
-  #     expect(IngestFindingAidJob).to have_received(:perform_later).with('ingest.success', ead_id: 'eadid')
+  #     expect(IngestAutomationJob).to have_received(:perform_later).with('ingest.success', ead_id: 'eadid')
   #   end
   #
   #   it 'logs failures for known failure events' do

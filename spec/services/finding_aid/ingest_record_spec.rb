@@ -34,7 +34,7 @@ RSpec.describe FindingAid::IngestRecord do
     allow(findingaid).to receive(:save!).and_return(true)
     allow(findingaid).to receive(:eadurl=)
     allow(findingaid).to receive(:eadurl).and_return('title')
-    allow(IndexFindingAidJob).to receive(:perform_now).with(path, findingaid.reposlug).and_return(true)
+    allow(IngestAutomationIndexJob).to receive(:perform_now).with(path, findingaid.reposlug).and_return(true)
     allow(Blacklight.repository_class).to receive(:new).with('blacklight_config').and_return(repository)
     allow(repository).to receive(:search).and_return(response)
     allow(CatalogController).to receive(:new).and_return(catalog_controller)
@@ -45,7 +45,7 @@ RSpec.describe FindingAid::IngestRecord do
   it 'indexes and marks finding aid as indexed' do
     expect { described_class.call(id) }.not_to raise_error
 
-    expect(IndexFindingAidJob).to have_received(:perform_now).with(path, findingaid.reposlug)
+    expect(IngestAutomationIndexJob).to have_received(:perform_now).with(path, findingaid.reposlug)
     expect(findingaid).to have_received(:state=).with('indexing')
     expect(findingaid).to have_received(:eadurl=).with('title')
     expect(findingaid).to have_received(:state=).with('indexed')

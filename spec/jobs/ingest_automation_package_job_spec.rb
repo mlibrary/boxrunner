@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe PackageFindingAidJob, type: :job do
+RSpec.describe IngestAutomationPackageJob, type: :job do
   include ActiveJob::TestHelper
 
   let(:identifier) { 'eadid.slug' }

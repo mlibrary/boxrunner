@@ -19,7 +19,7 @@ namespace :arclight do
       puts "working directory : "
       Dir.glob(File.join(Rails.root, "data", "ead", repo_id, "*.xml")) do |path|
         puts "Queuing #{path} for Ingest..."
-        IngestFindingAidJob.perform_later("ingest.file", repo_id: repo_id, file_path: path)
+        IngestAutomationJob.perform_later("ingest.file", repo_id: repo_id, file_path: path)
       end
     end
 
