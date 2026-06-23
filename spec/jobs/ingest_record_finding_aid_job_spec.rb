@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe IngestFindingAidJob, type: :job do
+RSpec.describe IngestRecordFindingAidJob, type: :job do
   include ActiveJob::TestHelper
 
   let(:id) { 'id' }

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class IngestFindingAidJob < ApplicationJob
+class IngestRecordFindingAidJob < ApplicationJob
   queue_as :index
 
   def perform(id)
