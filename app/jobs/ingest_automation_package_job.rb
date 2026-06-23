@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-# require 'um_arclight/errors'           # TODO: add um_arclight gem
-# require 'um_arclight/package/generator'  # TODO: add um_arclight gem
-
-# Job to queue packaging
 class IngestAutomationPackageJob < ApplicationJob
   queue_as :index
 

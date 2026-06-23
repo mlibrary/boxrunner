@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-# require 'dul_arclight/errors'       # TODO: add dul_arclight gem
-# require 'um_arclight/errors'         # TODO: add um_arclight gem
-
-# require_dependency "um_arclight/package/generator"  # TODO: add um_arclight gem
-
 class IngestAutomationIndexJob < ApplicationJob
   queue_as :index
 
