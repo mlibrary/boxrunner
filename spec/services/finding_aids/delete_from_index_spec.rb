@@ -19,4 +19,3 @@ RSpec.describe FindingAids::DeleteFromIndex do
     expect(connection).to have_received(:commit)
   end
 end
-

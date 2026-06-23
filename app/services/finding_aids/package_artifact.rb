@@ -14,7 +14,7 @@ module FindingAids
 
     def self.convert(identifier, format)
       artifact = ::UmArclight::Package::Generator.new identifier: identifier
-      format == 'html' ? artifact.generate_html : artifact.generate_pdf
+      format == "html" ? artifact.generate_html : artifact.generate_pdf
       ::IngestAutomationJob.perform_later "#{format}.success", ead_id: identifier
     rescue => error
       ::IngestAutomationJob.perform_later "#{format}.failure", ead_id: identifier
@@ -24,4 +24,3 @@ module FindingAids
     private_class_method :convert
   end
 end
-

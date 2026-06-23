@@ -15,4 +15,3 @@ RSpec.describe FindingAids::IndexFromEad do
     end
   end
 end
-

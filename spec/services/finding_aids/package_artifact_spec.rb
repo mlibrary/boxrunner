@@ -61,4 +61,3 @@ RSpec.describe FindingAids::PackageArtifact do
     end
   end
 end
-

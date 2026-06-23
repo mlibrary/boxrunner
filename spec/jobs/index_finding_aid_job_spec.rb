@@ -33,4 +33,3 @@ RSpec.describe IndexFindingAidJob, type: :job do
       .with('index.failure', src_path: src_path, repo_id: repo_id, ead_id: nil, err_msg: 'boom')
   end
 end
-

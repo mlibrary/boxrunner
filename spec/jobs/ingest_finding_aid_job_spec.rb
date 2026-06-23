@@ -23,4 +23,3 @@ RSpec.describe IngestFindingAidJob, type: :job do
     expect(FindingAids::IngestRecord).to have_received(:call).with(id)
   end
 end
-

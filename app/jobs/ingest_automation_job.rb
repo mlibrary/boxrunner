@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # require_dependency "um_arclight/package/generator"  # TODO: add um_arclight gem
 
 class IngestAutomationJob < ApplicationJob

@@ -47,4 +47,3 @@ RSpec.describe IngestAutomation::Dispatch do
     expect(logger).to have_received(:error).with("Ingest failed for Finding Aid -- event: index.failure, details: #{details.inspect}")
   end
 end
-

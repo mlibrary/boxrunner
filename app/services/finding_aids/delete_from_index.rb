@@ -11,4 +11,3 @@ module FindingAids
     end
   end
 end
-

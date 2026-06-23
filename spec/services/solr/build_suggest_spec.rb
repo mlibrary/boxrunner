@@ -30,4 +30,3 @@ RSpec.describe Solr::BuildSuggest do
     end
   end
 end
-

@@ -3,4 +3,3 @@
 module Boxrunner
   class Error < StandardError; end
 end
-

@@ -17,7 +17,7 @@ module Box
         super do |doc|
           new_doc = doc.dup
           new_doc.remove_namespaces!
-          compressed_doc = new_doc.xpath('/ead').to_s.strip.gsub!(/[[:space:]]+/, ' ')
+          compressed_doc = new_doc.xpath("/ead").to_s.strip.gsub!(/[[:space:]]+/, " ")
           yield Nokogiri::XML(compressed_doc)
         end
       end

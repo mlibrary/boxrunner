@@ -17,7 +17,7 @@ RSpec.describe FindingAids::IngestRecord do
   let(:repository) { instance_double(Blacklight.repository_class) }
   let(:catalog_controller) { instance_double('CatalogController', helpers: helpers) }
   let(:helpers) { double('helpers', blacklight_config: 'blacklight_config') }
-  let(:response) { instance_double('Blacklight::Solr::Response', documents: [document]) }
+  let(:response) { instance_double('Blacklight::Solr::Response', documents: [ document ]) }
   let(:document) { instance_double('SolrDocument') }
 
   before do
@@ -36,7 +36,7 @@ RSpec.describe FindingAids::IngestRecord do
     allow(Blacklight.repository_class).to receive(:new).with('blacklight_config').and_return(repository)
     allow(repository).to receive(:search).and_return(response)
     allow(CatalogController).to receive(:new).and_return(catalog_controller)
-    allow(document).to receive(:[]).with('title_ssm').and_return(['title'])
+    allow(document).to receive(:[]).with('title_ssm').and_return([ 'title' ])
     allow(Rails.logger).to receive(:info)
   end
 
@@ -50,4 +50,3 @@ RSpec.describe FindingAids::IngestRecord do
     expect(findingaid).to have_received(:save!).twice
   end
 end
-
