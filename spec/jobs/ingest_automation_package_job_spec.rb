@@ -32,7 +32,7 @@ RSpec.describe IngestAutomationPackageJob, type: :job do
   it 'enqueues a success event when packaging succeeds' do
     expect { described_class.perform_now(identifier, format) }.not_to raise_error
     expect(IngestAutomationJob).to have_received(:perform_later)
-      .with('html.success', ead_id: identifier, err_msg: nil)
+      .with('html.success', ead_id: identifier)
   end
 
   it 'enqueues a failure event when packaging fails' do

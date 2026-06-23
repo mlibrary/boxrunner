@@ -21,6 +21,8 @@ module IngestAutomation
         # do some accounting
       when "index.failure", "html.failure", "pdf.failure"
         logger.error "Ingest failed for Finding Aid -- event: #{event}, details: #{details.inspect}"
+      else
+        logger.error "Unknown ingest event for Finding Aid -- event: #{event}, details: #{details.inspect}"
       end
     end
   end

@@ -18,8 +18,20 @@ RSpec.describe FindingAid::IndexFromEad do
   end
 
   context 'when source open succeed' do
-    it 'return ead_id' do
+
+    let(:src_path) { Rails.root.join('spec/fixtures/bhl/umich-bhl-032.xml') }
+    let(:dest_path) { Rails.root.join('data/xml/bhl/umich-bhl-032.xml').to_s}
+    let(:dest_dir) { Rails.root.join('data/xml/bhl').to_s  }
+
+    before do
+      allow(FileUtils).to receive(:mkdir_p).with(dest_dir).and_return(true)
+      allow(FileUtils).to receive(:copy_file).with(src_path, dest_path, preserve: true, dereference: true, remove_destination: true).and_return(true)
+    end
+
+    it 'return ead_id and make an archive copy of source file available for downloads' do
       expect(described_class.call(src_path, repo_id)).to eq "umich-bhl-032"
+      expect(FileUtils).to have_received(:mkdir_p).with(dest_dir)
+      expect(FileUtils).to have_received(:copy_file).with(src_path, dest_path, preserve: true, dereference: true, remove_destination: true)
     end
   end
 end

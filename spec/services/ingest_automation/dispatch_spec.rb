@@ -39,11 +39,12 @@ RSpec.describe IngestAutomation::Dispatch do
     expect(IngestAutomationJob).to have_received(:perform_later).with('ingest.success', ead_id: 'eadid')
   end
 
-  it 'logs failures for known failure events' do
-    details = { ead_id: 'eadid', err: 'boom' }
+  it 'log unknown event' do
+    details = { ead_id: 'eadid' }
 
-    described_class.call('index.failure', details, logger: logger)
+    described_class.call('unknown.event', details, logger: logger)
 
-    expect(logger).to have_received(:error).with("Ingest failed for Finding Aid -- event: index.failure, details: #{details.inspect}")
+    expect(logger).to have_received(:error).with("Unknown ingest event for Finding Aid -- event: unknown.event, details: #{details.inspect}")
   end
+
 end
