@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Rackup config for the Resque dashboard (Resque::Server).
 #
 # We run the dashboard directly via `rackup`/Puma instead of the `resque-web`
