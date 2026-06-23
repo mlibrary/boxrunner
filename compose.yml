@@ -1,6 +1,8 @@
 ---
 services:
   app:
+    profiles:
+      - app
     depends_on:
       solr:
         condition: service_healthy

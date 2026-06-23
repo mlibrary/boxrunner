@@ -39,7 +39,7 @@ module FindingAids
       end
     rescue => e
       # ::IngestAutomationJob.perform_later('index.failure', src_path: src_path, archive_path: dest_path, ead_id: ead_id, err_msg: e.message)
-      raise Box::IndexError, e.message
+      raise FindingAidIndexError, e.message
     end
   end
 end
