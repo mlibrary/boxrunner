@@ -1,7 +1,8 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe FindingAids::DeleteFromIndex do
+RSpec.describe FindingAid::DeleteFromIndex do
   let(:eadid) { 'eadid.slug' }
   let(:connection) { instance_double(RSolr::Client) }
   let(:index) { instance_double(Blacklight::Solr::Repository, connection: connection) }

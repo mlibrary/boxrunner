@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module FindingAids
+module FindingAid
   class PackageArtifact
     FORMATS = %w[html pdf].freeze
 
@@ -15,9 +15,9 @@ module FindingAids
     def self.convert(identifier, format)
       artifact = ::UmArclight::Package::Generator.new identifier: identifier
       format == "html" ? artifact.generate_html : artifact.generate_pdf
-      ::IngestAutomationJob.perform_later "#{format}.success", ead_id: identifier
+      ::IngestFindingAidJob.perform_later "#{format}.success", ead_id: identifier
     rescue => error
-      ::IngestAutomationJob.perform_later "#{format}.failure", ead_id: identifier
+      ::IngestFindingAidJob.perform_later "#{format}.failure", ead_id: identifier
       raise ::UmArclight::GenerateError, identifier, error.to_s
     end
 

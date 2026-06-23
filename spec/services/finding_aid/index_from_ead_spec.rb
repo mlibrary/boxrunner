@@ -1,7 +1,8 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe FindingAids::IndexFromEad do
+RSpec.describe FindingAid::IndexFromEad do
   let(:src_path) { 'path/to/file.xml' }
   let(:repo_id) { 'repo' }
 

@@ -8,6 +8,6 @@ class PackageFindingAidJob < ApplicationJob
   queue_as :index
 
   def perform(identifier, format)
-    FindingAids::PackageArtifact.call(identifier, format)
+    FindingAid::PackageArtifact.call(identifier, format)
   end
 end

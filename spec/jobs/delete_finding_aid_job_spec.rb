@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe DeleteFindingAidJob, type: :job do
@@ -7,7 +8,7 @@ RSpec.describe DeleteFindingAidJob, type: :job do
   let(:eadid) { 'eadid.slug' }
 
   before do
-    allow(FindingAids::DeleteFromIndex).to receive(:call)
+    allow(FindingAid::DeleteFromIndex).to receive(:call)
   end
 
   after do
@@ -22,6 +23,6 @@ RSpec.describe DeleteFindingAidJob, type: :job do
 
   it 'delegates deletion to the service' do
     expect { described_class.perform_now(eadid) }.not_to raise_error
-    expect(FindingAids::DeleteFromIndex).to have_received(:call).with(eadid)
+    expect(FindingAid::DeleteFromIndex).to have_received(:call).with(eadid)
   end
 end

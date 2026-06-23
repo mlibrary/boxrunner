@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module FindingAids
+module FindingAid
   class DeleteFromIndex
     def self.call(eadid)
       connection = Blacklight.default_index.connection

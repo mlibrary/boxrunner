@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module FindingAids
+module FindingAid
   class IngestRecord
     def self.call(id)
       findingaid = Findingaid.find(id)

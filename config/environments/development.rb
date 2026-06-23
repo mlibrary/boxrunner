@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
@@ -78,6 +79,6 @@ Rails.application.configure do
 
   # 4. Clear host filtering so your Mac browser can talk to the server cleanly
   config.hosts.clear
-  # 5. Enable the built-in ingest automation pipeline
-  config.x.arclight.enable_automation = true
+  # 5. Enable the built-in ingesting automation pipeline
+  config.x.arclight.enable_ingest = true
 end

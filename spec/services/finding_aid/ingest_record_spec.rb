@@ -1,7 +1,8 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe FindingAids::IngestRecord do
+RSpec.describe FindingAid::IngestRecord do
   let(:id) { 'id' }
   let(:findingaid) do
     instance_double(

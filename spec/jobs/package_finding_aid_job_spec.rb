@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe PackageFindingAidJob, type: :job do
@@ -8,7 +9,7 @@ RSpec.describe PackageFindingAidJob, type: :job do
   let(:format) { 'html' }
 
   before do
-    allow(FindingAids::PackageArtifact).to receive(:call)
+    allow(FindingAid::PackageArtifact).to receive(:call)
   end
 
   after do
@@ -23,6 +24,6 @@ RSpec.describe PackageFindingAidJob, type: :job do
 
   it 'delegates packaging to the service' do
     expect { described_class.perform_now(identifier, format) }.not_to raise_error
-    expect(FindingAids::PackageArtifact).to have_received(:call).with(identifier, format)
+    expect(FindingAid::PackageArtifact).to have_received(:call).with(identifier, format)
   end
 end

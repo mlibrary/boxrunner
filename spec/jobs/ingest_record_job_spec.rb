@@ -1,13 +1,14 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe IngestRecordFindingAidJob, type: :job do
+RSpec.describe IngestRecordJob, type: :job do
   include ActiveJob::TestHelper
 
   let(:id) { 'id' }
 
   before do
-    allow(FindingAids::IngestRecord).to receive(:call)
+    allow(FindingAid::IngestRecord).to receive(:call)
   end
 
   after do
@@ -16,11 +17,11 @@ RSpec.describe IngestRecordFindingAidJob, type: :job do
   end
 
   it 'queues the job' do
-    expect { described_class.perform_later(id) }.to have_enqueued_job(described_class).with(id).on_queue("index")
+    expect { described_class.perform_later(id) }.to have_enqueued_job(described_class).with(id).on_queue("ingest")
   end
 
   it 'delegates ingest record work to the service' do
     expect { described_class.perform_now(id) }.not_to raise_error
-    expect(FindingAids::IngestRecord).to have_received(:call).with(id)
+    expect(FindingAid::IngestRecord).to have_received(:call).with(id)
   end
 end
