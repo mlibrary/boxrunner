@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'stringio'
 
 RSpec.describe FindingAid::IndexFromEad do
   let(:src_path) { 'path/to/file.xml' }
-  let(:repo_id) { 'repo' }
+  let(:repo_id) { 'bhl' }
+  let(:fixture_path) { Rails.root.join('spec/fixtures/bhl/umich-bhl-032.xml') }
 
   context 'when source open fails' do
     before do
@@ -19,14 +19,9 @@ RSpec.describe FindingAid::IndexFromEad do
   end
 
   context 'when source open succeed' do
-    before do
-      allow(File).to receive(:open)
-        .with(src_path, 'r:UTF-8:UTF-8')
-        .and_return(StringIO.new('<ead></ead>'))
-    end
-
     it 'return ead_id' do
-      expect ( described_class.call(src_path, repo_id)).to be_a String
+      x = described_class.call(fixture_path, repo_id)
+      expect(x).to eq "umich-bhl-032"
     end
   end
 end
