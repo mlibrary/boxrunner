@@ -7,9 +7,10 @@ RSpec.describe IngestAutomationIndexJob, type: :job do
 
   let(:src_path) { 'path/to/file.xml' }
   let(:repo_id) { 'repo' }
+  let(:ead_id) { 'ead123' }
 
   before do
-    allow(FindingAid::IndexFromEad).to receive(:call)
+    allow(FindingAid::IndexFromEad).to receive(:call).and_return(ead_id)
   end
 
   after do
@@ -33,5 +34,12 @@ RSpec.describe IngestAutomationIndexJob, type: :job do
     expect { described_class.perform_now(src_path, repo_id) }.not_to raise_error
     expect(IngestAutomationJob).to have_received(:perform_later)
       .with('index.failure', src_path: src_path, repo_id: repo_id, ead_id: nil, err_msg: 'boom')
+  end
+
+  it 'enqueues an index success event when indexing succeed' do
+    allow(IngestAutomationJob).to receive(:perform_later)
+    expect { described_class.perform_now(src_path, repo_id) }.not_to raise_error
+    expect(IngestAutomationJob).to have_received(:perform_later)
+                                     .with('index.success', src_path: src_path, repo_id: repo_id, ead_id: ead_id)
   end
 end
