@@ -33,12 +33,11 @@ module FindingAid
           dest_path = File.join(dest_dir, "#{ead_id}.xml")
           FileUtils.mkdir_p(dest_dir)
           FileUtils.copy_file(src_path, dest_path, preserve: true, dereference: true, remove_destination: true)
-
-          # ::IngestAutomationJob.perform_later('index.success', src_path: src_path, archive_path: dest_path, ead_id: ead_id)
         end
+
+        ead_id
       end
     rescue => e
-      # ::IngestAutomationJob.perform_later('index.failure', src_path: src_path, archive_path: dest_path, ead_id: ead_id, err_msg: e.message)
       raise FindingAidIndexError, e.message
     end
   end
