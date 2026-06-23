@@ -80,5 +80,5 @@ Rails.application.configure do
   # 4. Clear host filtering so your Mac browser can talk to the server cleanly
   config.hosts.clear
   # 5. Enable the built-in ingesting automation pipeline
-  config.x.arclight.enable_ingest = true
+  config.x.arclight.enable_ingest_automation = true
 end

@@ -3,6 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe IngestAutomationJob, type: :job do
+  before do
+    allow(IngestAutomation::Dispatch).to receive(:call)
+  end
+
   describe 'queue' do
     it 'is enqueued on the default queue' do
       expect(described_class.new("event", {}).queue_name).to eq('ingest')
@@ -15,67 +19,21 @@ RSpec.describe IngestAutomationJob, type: :job do
   end
 
   describe '#perform' do
-    it 'does not dispatch when ingest is disabled' do
-      arclight_options = double('arclight_options', enable_ingest: false)
+    it 'does not dispatch when automation is disabled' do
+      arclight_options = double('arclight_options', enable_ingest_automation: false)
       allow(Rails.configuration.x).to receive(:arclight).and_return(arclight_options)
 
       expect { described_class.perform_now('event', {}) }.not_to raise_error
-      # expect(Ingestingest::Dispatch).not_to have_received(:call)
+      expect(IngestAutomation::Dispatch).not_to have_received(:call)
     end
 
-    it 'delegates event handling when ingest is enabled' do
+    it 'delegates event handling when automation is enabled' do
       details = { repo_id: 'repo', file_path: '/tmp/file.xml' }
-      arclight_options = double('arclight_options', enable_ingest: true)
+      arclight_options = double('arclight_options', enable_ingest_automation: true)
       allow(Rails.configuration.x).to receive(:arclight).and_return(arclight_options)
 
       expect { described_class.perform_now('ingest.file', details) }.not_to raise_error
-      # expect(Ingestingest::Dispatch).to have_received(:call).with('ingest.file', details, logger: anything)
+      expect(IngestAutomation::Dispatch).to have_received(:call).with('ingest.file', details, logger: anything)
     end
   end
-
-  # RSpec.describe IngestAutomation::Dispatch do
-  #   let(:logger) { instance_double(Logger, info: nil, error: nil) }
-  #
-  #   before do
-  #     allow(IngestAutomationIndexJob).to receive(:perform_later)
-  #     allow(IngestAutomationPackageJob).to receive(:perform_later)
-  #     allow(IngestAutomationJob).to receive(:perform_later)
-  #   end
-  #
-  #   it 'dispatches ingest.file to IngestAutomationIndexJob' do
-  #     details = { repo_id: 'repo', file_path: '/tmp/example.xml' }
-  #
-  #     described_class.call('ingest.file', details, logger: logger)
-  #
-  #     expect(IngestAutomationIndexJob).to have_received(:perform_later).with('/tmp/example.xml', 'repo')
-  #   end
-  #
-  #   it 'dispatches index.success to html packaging' do
-  #     details = { ead_id: 'eadid', src_path: '/tmp/example.xml', archive_path: '/tmp/archive.xml' }
-  #
-  #     described_class.call('index.success', details, logger: logger)
-  #
-  #     expect(IngestAutomationPackageJob).to have_received(:perform_later).with('eadid', 'html')
-  #   end
-  #
-  #   it 'dispatches html.success to pdf packaging' do
-  #     described_class.call('html.success', { ead_id: 'eadid' }, logger: logger)
-  #
-  #     expect(IngestAutomationPackageJob).to have_received(:perform_later).with('eadid', 'pdf')
-  #   end
-  #
-  #   it 'dispatches pdf.success to ingest.success event' do
-  #     described_class.call('pdf.success', { ead_id: 'eadid' }, logger: logger)
-  #
-  #     expect(IngestAutomationJob).to have_received(:perform_later).with('ingest.success', ead_id: 'eadid')
-  #   end
-  #
-  #   it 'logs failures for known failure events' do
-  #     details = { ead_id: 'eadid', err: 'boom' }
-  #
-  #     described_class.call('index.failure', details, logger: logger)
-  #
-  #     expect(logger).to have_received(:error).with("Ingest failed for Finding Aid -- event: index.failure, details: #{details.inspect}")
-  #   end
-  # end
 end
