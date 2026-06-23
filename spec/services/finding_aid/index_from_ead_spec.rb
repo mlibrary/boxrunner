@@ -3,9 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe FindingAid::IndexFromEad do
-  let(:src_path) { 'path/to/file.xml' }
+  let(:src_path) { Rails.root.join('spec/fixtures/bhl/umich-bhl-032.xml') }
   let(:repo_id) { 'bhl' }
-  let(:fixture_path) { Rails.root.join('spec/fixtures/bhl/umich-bhl-032.xml') }
 
   context 'when source open fails' do
     before do
@@ -20,8 +19,7 @@ RSpec.describe FindingAid::IndexFromEad do
 
   context 'when source open succeed' do
     it 'return ead_id' do
-      x = described_class.call(fixture_path, repo_id)
-      expect(x).to eq "umich-bhl-032"
+      expect(described_class.call(src_path, repo_id)).to eq "umich-bhl-032"
     end
   end
 end
