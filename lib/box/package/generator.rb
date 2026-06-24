@@ -5,11 +5,9 @@ require 'benchmark'
 require 'json'
 require 'fileutils'
 require 'nokogiri'
-
+require 'deprecation'
 require 'uri'
 require 'net/http'
-
-require 'box/errors'
 
 Deprecation.default_deprecation_behavior = :silence
 
