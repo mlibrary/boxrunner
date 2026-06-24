@@ -52,6 +52,8 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379/0
       - RESQUE_NAMESPACE=resque:boxrunner
+    env_file:
+      - .env
     ports:
       - '5678:5678'
     command: bundle exec rackup -o 0.0.0.0 -p 5678 config/resque_web.ru
