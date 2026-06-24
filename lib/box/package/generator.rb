@@ -147,16 +147,26 @@ module Box
       private
 
       def generate_output_filename(ext)
-        filename = File.join(DulArclight.finding_aid_data, 'pdf', collection.repository_id, "#{collection.document_id}#{ext}")
+        filename = File.join(finding_aid_data_path, 'pdf', collection_repository_id, "#{collection.document_id}#{ext}")
         filename = File.join(Rails.root, filename) if filename.start_with?('./')
         filename
       end
 
       def working_path_name
         # File.join(Rails.root, "tmp", "pdf")
-        File.writable?(File.join(DulArclight.finding_aid_data)) ?
-          File.join(DulArclight.finding_aid_data, 'pdf', 'tmp', collection.repository_id) :
+        File.writable?(File.join(finding_aid_data_path)) ?
+          File.join(finding_aid_data_path, 'pdf', 'tmp', collection_repository_id) :
           File.join(Rails.root, "tmp", "pdf")
+      end
+
+      def finding_aid_data_path
+        ENV.fetch("FINDING_AID_DATA", Rails.root.join('data').to_s)
+      end
+
+      def collection_repository_id
+        return collection.repository_id if collection.respond_to?(:repository_id)
+
+        Array(collection['repository_ssm']).first.to_s.parameterize.presence || 'repository'
       end
 
       def generate_local_html_filename
@@ -255,19 +265,12 @@ module Box
       # rubocop:enable Metrics/MethodLength
 
       def render_fragment(variables)
-        paths = ActionView::PathSet.new(['app/views'])
-        lookup_context = ActionView::LookupContext.new(paths)
-        renderer = ActionView::Renderer.new(lookup_context)
-        view_context = ActionView::Base.new(renderer)
-
-        # re-evaluate when we upgrade Rails to use CatalogController.renderer
-        view_context.define_singleton_method(:blacklight_config) do
-          @config ||= CatalogController.blacklight_config.deep_copy
-        end
-        view_context.assign(variables)
-        view_context.extend Arclight::EadFormatHelpers
-
-        fragment_html = renderer.render(view_context, template: 'arclight/fragments/fragment')
+        fragment_html = CatalogController.renderer.render(
+          template: 'arclight/fragments/fragment',
+          assigns: variables,
+          layout: false,
+          formats: [:html]
+        )
         Nokogiri::HTML5(fragment_html)
       end
 
@@ -362,7 +365,11 @@ module Box
         placeholder_el.add_next_sibling '<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">'
         placeholder_el.add_next_sibling '<link href="https://fonts.googleapis.com/css?family=Crimson+Text|Muli:400,600,700" rel="stylesheet">'
         placeholder_el.add_next_sibling '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">'
-        placeholder_el.add_next_sibling CatalogController.helpers.stylesheet_link_tag('print')
+        begin
+          placeholder_el.add_next_sibling CatalogController.helpers.stylesheet_link_tag('print')
+        rescue Sprockets::Rails::Helper::AssetNotFound
+          # print.css is optional in test and some packaging environments
+        end
 
         # cache the assets locally
         doc.xpath('/html/head/link').each do |link|
