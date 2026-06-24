@@ -6,17 +6,17 @@ module FindingAid
 
     def self.call(identifier, format)
       unless FORMATS.include?(format)
-        raise ::UmArclight::GenerateError, identifier, "Unsupported format requested: #{format}"
+        raise ::Box::GenerateError, identifier, "Unsupported format requested: #{format}"
       end
 
       convert(identifier, format)
     end
 
     def self.convert(identifier, format)
-      artifact = ::UmArclight::Package::Generator.new identifier: identifier
+      artifact = ::Box::Package::Generator.new identifier: identifier
       format == "html" ? artifact.generate_html : artifact.generate_pdf
     rescue => error
-      raise ::UmArclight::GenerateError, identifier, error.to_s
+      raise ::Box::GenerateError, identifier, error.to_s
     end
 
     private_class_method :convert
