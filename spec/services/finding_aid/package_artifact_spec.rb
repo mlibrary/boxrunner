@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe FindingAid::PackageArtifact do
   let(:identifier) { 'eadid.slug' }
-  let(:generator) { instance_double(UmArclight::Package::Generator) }
+  let(:generator) { instance_double(Box::Package::Generator) }
 
   before do
     stub_const('Box::GenerateError', Class.new(StandardError))
@@ -15,9 +15,9 @@ RSpec.describe FindingAid::PackageArtifact do
 
       def generate_pdf; end
     end
-    stub_const('UmArclight::Package::Generator', generator_class)
+    stub_const('Box::Package::Generator', generator_class)
 
-    allow(UmArclight::Package::Generator).to receive(:new).with(identifier: identifier).and_return(generator)
+    allow(Box::Package::Generator).to receive(:new).with(identifier: identifier).and_return(generator)
     allow(generator).to receive(:generate_html)
     allow(generator).to receive(:generate_pdf)
   end
@@ -42,7 +42,7 @@ RSpec.describe FindingAid::PackageArtifact do
     it 'raises a GenerateError without generating' do
       expect { described_class.call(identifier, 'txt') }
         .to raise_error(Box::GenerateError, identifier)
-      expect(UmArclight::Package::Generator).not_to have_received(:new)
+      expect(Box::Package::Generator).not_to have_received(:new)
     end
   end
 
