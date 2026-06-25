@@ -142,6 +142,16 @@ RSpec.describe Box::Package::Generator do
     expect(generator.send(:generate_local_html_filename)).to end_with('umich-test-9999.local.html')
   end
 
+  it 'prefers chromium for PDF rendering when available' do
+    allow(File).to receive(:executable?).with('/usr/bin/chromium').and_return(true)
+    allow(File).to receive(:executable?).with('/usr/bin/chromium-browser').and_return(false)
+
+    cmd, env = generator.send(:pdf_render_command, 'input.local.html', 'output.pdf')
+    expect(cmd.first).to eq('/usr/bin/chromium')
+    expect(cmd).to include('--headless', '--no-sandbox', '--print-to-pdf=output.pdf')
+    expect(env).to eq({})
+  end
+
   it 'orders nested components using parent_ids without parent_ids_keyed' do
     allow(generator).to receive(:fetch_components).and_call_original
 

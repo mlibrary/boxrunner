@@ -131,19 +131,8 @@ module Box
 
         Dir.chdir working_path_name do
           elapsed_time = Benchmark.realtime do
-            cmd = [
-              wkhtmltopdf_command,
-              "--page-size", "Letter",
-              "--enable-internal-links",
-              "--enable-local-file-access",
-              "--margin-top", "20mm",
-              "--margin-bottom", "20mm",
-              "--margin-right", "20mm",
-              "--margin-left", "20mm",
-              local_html_filename,
-              output_filename
-            ]
-            stdout_and_stderr, process_status = Open3.capture2e(*cmd)
+            cmd, env = pdf_render_command(local_html_filename, output_filename)
+            stdout_and_stderr, process_status = Open3.capture2e(env, *cmd)
 
             if process_status.success?
               puts stdout_and_stderr
@@ -199,6 +188,51 @@ module Box
         "wkhtmltopdf"
       rescue Gem::LoadError
         "wkhtmltopdf"
+      end
+
+      def wkhtmltopdf_env
+        return {} unless wkhtmltopdf_command.include?("wkhtmltopdf-binary-arm64")
+
+        suffix = ENV["WKHTMLTOPDF_HOST_SUFFIX"].presence || "ubuntu_20.04_arm64"
+        { "WKHTMLTOPDF_HOST_SUFFIX" => suffix }
+      end
+
+      def pdf_render_command(local_html_filename, output_filename)
+        if (chromium = chromium_command)
+          cmd = [
+            chromium,
+            "--headless",
+            "--disable-gpu",
+            "--no-sandbox",
+            "--allow-file-access-from-files",
+            "--print-to-pdf-no-header",
+            "--print-to-pdf=#{output_filename}",
+            "file://#{File.expand_path(local_html_filename)}"
+          ]
+          [ cmd, {} ]
+        else
+          cmd = [
+            wkhtmltopdf_command,
+            "--page-size", "Letter",
+            "--enable-internal-links",
+            "--enable-local-file-access",
+            "--margin-top", "20mm",
+            "--margin-bottom", "20mm",
+            "--margin-right", "20mm",
+            "--margin-left", "20mm",
+            local_html_filename,
+            output_filename
+          ]
+          [ cmd, wkhtmltopdf_env ]
+        end
+      end
+
+      def chromium_command
+        return ENV["CHROMIUM_PATH"] if ENV["CHROMIUM_PATH"].present?
+        return "/usr/bin/chromium" if File.executable?("/usr/bin/chromium")
+        return "/usr/bin/chromium-browser" if File.executable?("/usr/bin/chromium-browser")
+
+        nil
       end
 
       def get(url)
