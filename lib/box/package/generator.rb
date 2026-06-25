@@ -136,7 +136,7 @@ module Box
             if process_status.success?
               puts stdout_and_stderr
             else
-              raise UmArclight::GenerateError, identifier, stdout_and_stderr.to_s
+              raise Box::GenerateError, identifier, stdout_and_stderr.to_s
             end
           end
 
@@ -162,7 +162,7 @@ module Box
       def finding_aid_data_path
         ENV.fetch("FINDING_AID_DATA", Rails.root.join('data').to_s)
       end
-
+      # TODO: this is a hack to get the repository_id from the collection.
       def collection_repository_id
         return collection.repository_id if collection.respond_to?(:repository_id)
 
@@ -365,6 +365,7 @@ module Box
         placeholder_el.add_next_sibling '<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">'
         placeholder_el.add_next_sibling '<link href="https://fonts.googleapis.com/css?family=Crimson+Text|Muli:400,600,700" rel="stylesheet">'
         placeholder_el.add_next_sibling '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">'
+        # TODO: another hack to hide the AssetNotFound error
         begin
           placeholder_el.add_next_sibling CatalogController.helpers.stylesheet_link_tag('print')
         rescue Sprockets::Rails::Helper::AssetNotFound

@@ -7,7 +7,7 @@ RSpec.describe FindingAid::PackageArtifact do
   let(:generator) { instance_double(UmArclight::Package::Generator) }
 
   before do
-    stub_const('UmArclight::GenerateError', Class.new(StandardError))
+    stub_const('Box::GenerateError', Class.new(StandardError))
     generator_class = Class.new do
       def initialize(identifier:); end
 
@@ -41,7 +41,7 @@ RSpec.describe FindingAid::PackageArtifact do
   context 'when the format is unsupported' do
     it 'raises a GenerateError without generating' do
       expect { described_class.call(identifier, 'txt') }
-        .to raise_error(UmArclight::GenerateError, identifier)
+        .to raise_error(Box::GenerateError, identifier)
       expect(UmArclight::Package::Generator).not_to have_received(:new)
     end
   end
@@ -53,7 +53,7 @@ RSpec.describe FindingAid::PackageArtifact do
 
     it 're-raises as a GenerateError' do
       expect { described_class.call(identifier, 'html') }
-        .to raise_error(UmArclight::GenerateError, identifier)
+        .to raise_error(Box::GenerateError, identifier)
     end
   end
 end
