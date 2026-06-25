@@ -3,7 +3,7 @@
 # Represents a single document returned from Solr
 class SolrDocument
   include Blacklight::Solr::Document
- include Arclight::SolrDocument
+  include Arclight::SolrDocument
 
   # self.unique_key = 'id'
 
@@ -13,4 +13,13 @@ class SolrDocument
   # and Blacklight::Document::SemanticFields#to_semantic_values
   # Recommendation: Use field names from Dublin Core
   use_extension(Blacklight::Document::DublinCore)
+
+  # Repository request mappings may reference these legacy-style accessors.
+  def physloc
+    first("physloc_tesim") || first("physloc_ssm")
+  end
+
+  def collection_date
+    normalized_date || collection&.normalized_date
+  end
 end

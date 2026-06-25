@@ -303,11 +303,22 @@ module Box
       # rubocop:disable Metrics/AbcSize
       def update_package_html
         last_style_el = doc.xpath('/html/head/link[@rel="stylesheet"]').last
-        last_style_el.add_next_sibling(fragment.css("#utility-styles").first)
+        utility_styles = fragment.css("#utility-styles").first
+        if utility_styles
+          if last_style_el
+            last_style_el.add_next_sibling(utility_styles)
+          else
+            doc.at_xpath("/html/head")&.add_child(utility_styles)
+          end
+        end
         @chunks = doc.fragment
         asset_links = doc.xpath('/html/head/link[starts-with(@href, "/assets")]')
         # add the placeholder
-        asset_links.first.add_previous_sibling '<style id="placeholder"></style>'
+        if (first_asset_link = asset_links.first)
+          first_asset_link.add_previous_sibling '<style id="placeholder"></style>'
+        else
+          doc.at_xpath("/html/head")&.add_child('<style id="placeholder"></style>')
+        end
 
         asset_links.each do |el|
           # @chunks << el
