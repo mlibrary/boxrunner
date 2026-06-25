@@ -3,4 +3,3 @@
 module Box
   class Error < ::StandardError; end
 end
-

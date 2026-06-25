@@ -3,4 +3,3 @@
 module Box
   class GenerateError < Error; end
 end
-
