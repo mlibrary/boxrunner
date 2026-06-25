@@ -8,6 +8,7 @@ require "nokogiri"
 require "deprecation"
 require "uri"
 require "net/http"
+require "open3"
 
 Deprecation.default_deprecation_behavior = :silence
 
@@ -130,8 +131,19 @@ module Box
 
         Dir.chdir working_path_name do
           elapsed_time = Benchmark.realtime do
-            cmd = "wkhtmltopdf --page-size Letter --enable-internal-links --enable-local-file-access --margin-top 20mm --margin-bottom 20mm --margin-right 20mm --margin-left 20mm #{local_html_filename} #{output_filename}"
-            stdout_and_stderr, process_status = Open3.capture2e(cmd)
+            cmd = [
+              "wkhtmltopdf",
+              "--page-size", "Letter",
+              "--enable-internal-links",
+              "--enable-local-file-access",
+              "--margin-top", "20mm",
+              "--margin-bottom", "20mm",
+              "--margin-right", "20mm",
+              "--margin-left", "20mm",
+              local_html_filename,
+              output_filename
+            ]
+            stdout_and_stderr, process_status = Open3.capture2e(*cmd)
 
             if process_status.success?
               puts stdout_and_stderr
