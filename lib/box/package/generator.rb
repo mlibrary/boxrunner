@@ -251,8 +251,8 @@ module Box
           tmp[component_level].each do |doc|
             # find the parent_doc because nothing is easy
             parent_doc = nil
-            parent_identifiers_for(doc).reverse.each do |parent_id|
-              parent_doc = tmp_map[parent_id] || tmp_map_by_id[parent_id]
+            Array(doc.parent_ids).reverse.each do |parent_id|
+              parent_doc = tmp_map_by_id[parent_id]
               break if parent_doc
             end
 
@@ -276,17 +276,6 @@ module Box
         components
       end
 
-      # Supports both current Arclight fields (parent_ids) and legacy fields
-      # (parent_ssim / parent_ids_keyed) for compatibility across indexed data.
-      def parent_identifiers_for(doc)
-        if doc.respond_to?(:parent_ids) && doc.parent_ids.present?
-          Array(doc.parent_ids)
-        elsif doc.respond_to?(:parent_ids_keyed) && doc.parent_ids_keyed.present?
-          Array(doc.parent_ids_keyed)
-        else
-          Array(doc["parent_ids_ssim"]).presence || Array(doc["parent_ssim"])
-        end
-      end
       # rubocop:enable Metrics/AbcSize
       # rubocop:enable Metrics/MethodLength
 
