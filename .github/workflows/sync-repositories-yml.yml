@@ -1,0 +1,47 @@
+name: Sync repositories.yml
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download config/repositories.yml from boxwalker
+        env:
+          SOURCE_REPO: mlibrary/boxwalker
+          SOURCE_PATH: config/repositories.yml
+          SOURCE_REF: main
+        run: |
+          set -euo pipefail
+
+          curl -fsSL \
+            "https://raw.githubusercontent.com/${SOURCE_REPO}/${SOURCE_REF}/${SOURCE_PATH}" \
+            -o config/repositories.yml
+
+      - name: Create pull request if file changed
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore: sync config/repositories.yml from boxwalker"
+          branch: "chore/sync-repositories-yml"
+          delete-branch: true
+          title: "chore: sync config/repositories.yml from boxwalker"
+          body: |
+            Automated sync of `config/repositories.yml` from `mlibrary/boxwalker`.
+
+            - Source: `mlibrary/boxwalker/config/repositories.yml`
+            - Trigger: scheduled or manual workflow run
+          labels: |
+            dependencies
+            chore
+
