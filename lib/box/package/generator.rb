@@ -372,7 +372,9 @@ module Box
 
       def build_package_html_toc
         # rearrange the various contents links
-        doc.css(".access-preview-snippet").first.inner_html = '<div id="toc"><ul class="list-unbulleted"></ul></ul>'
+        return unless (access_preview_snippet = doc.css(".access-preview-snippet").first)
+
+        access_preview_snippet.inner_html = '<div id="toc"><ul class="list-unbulleted"></ul></ul>'
         current_ul = doc.css("#toc ul").first
         contents_li = nil
         doc.css("#about-collection-nav li.nav-item").each do |li|

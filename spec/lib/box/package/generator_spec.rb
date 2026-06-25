@@ -98,6 +98,34 @@ RSpec.describe Box::Package::Generator do
     expect { generator.build_html }.not_to raise_error
   end
 
+  it 'does not fail when the catalog page lacks access-preview-snippet' do
+    allow(generator).to receive(:get) do |url| # rubocop:disable RSpec/SubjectStub
+      response = double('response') # rubocop:disable RSpec/VerifiedDoubles
+      output = if url.start_with?('/catalog')
+        <<-HTML
+        <html>
+          <head>
+            <title>Finding Aid</title>
+            <link rel="stylesheet" href="/assets/styles.css" />
+          </head>
+          <body>
+            <m-website-header name="Finding Aids"></m-website-header>
+            <div id="summary"><dl></dl></div>
+            <div class="al-contents"></div>
+            <div id="context-tree-nav"><div class="tab-pane active"></div></div>
+          </body>
+        </html>
+        HTML
+      else
+        mock_get(url)
+      end
+      allow(response).to receive(:body) { output }
+      response
+    end
+
+    expect { generator.build_html }.not_to raise_error
+  end
+
   it 'uses id when SolrDocument does not implement document_id' do
     allow(generator).to receive(:fetch_doc) do |_identifier| # rubocop:disable RSpec/SubjectStub
       SolrDocument.new(
