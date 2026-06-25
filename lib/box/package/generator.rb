@@ -148,7 +148,7 @@ module Box
             if process_status.success?
               puts stdout_and_stderr
             else
-              raise Box::GenerateError, identifier, stdout_and_stderr.to_s
+              raise Box::GenerateError, "[#{identifier}] wkhtmltopdf failed: #{stdout_and_stderr}"
             end
           end
 

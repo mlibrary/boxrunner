@@ -41,7 +41,7 @@ RSpec.describe FindingAid::PackageArtifact do
   context 'when the format is unsupported' do
     it 'raises a GenerateError without generating' do
       expect { described_class.call(identifier, 'txt') }
-        .to raise_error(Box::GenerateError, identifier)
+        .to raise_error(Box::GenerateError, "[#{identifier}] Unsupported format requested: txt")
       expect(Box::Package::Generator).not_to have_received(:new)
     end
   end
@@ -53,7 +53,7 @@ RSpec.describe FindingAid::PackageArtifact do
 
     it 're-raises as a GenerateError' do
       expect { described_class.call(identifier, 'html') }
-        .to raise_error(Box::GenerateError, identifier)
+        .to raise_error(Box::GenerateError, "[#{identifier}] StandardError: boom")
     end
   end
 end
