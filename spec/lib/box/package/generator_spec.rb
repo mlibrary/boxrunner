@@ -68,6 +68,36 @@ RSpec.describe Box::Package::Generator do
     expect(doc.css('header').first).to be_truthy
   end
 
+  it 'does not fail when the catalog page lacks optional html nodes' do
+    allow(generator).to receive(:get) do |url| # rubocop:disable RSpec/SubjectStub
+      response = double('response') # rubocop:disable RSpec/VerifiedDoubles
+      output = if url.start_with?('/catalog')
+        <<-HTML
+        <html>
+          <head>
+            <title>Finding Aid</title>
+            <meta name="csrf-param">
+            <meta name="csrf-token">
+          </head>
+          <body>
+            <m-website-header name="Finding Aids"></m-website-header>
+            <div id="summary"><dl></dl></div>
+            <div class="al-contents"></div>
+            <div id="context-tree-nav"><div class="tab-pane active"></div></div>
+            <div class="access-preview-snippet"></div>
+          </body>
+        </html>
+        HTML
+      else
+        mock_get(url)
+      end
+      allow(response).to receive(:body) { output }
+      response
+    end
+
+    expect { generator.build_html }.not_to raise_error
+  end
+
   it 'orders nested components using parent_ids without parent_ids_keyed' do
     allow(generator).to receive(:fetch_components).and_call_original
 

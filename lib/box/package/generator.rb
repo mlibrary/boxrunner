@@ -337,20 +337,20 @@ module Box
         if (contents_el = doc.css("div.al-contents").first)
           contents_el.replace(fragment.css("div.al-contents-ish").first)
         end
-        doc.css(".card-img").first.remove
-        doc.css("#navigate-collection-toggle").first.remove
+        doc.css(".card-img").first&.remove
+        doc.css("#navigate-collection-toggle").first&.remove
         if (tree_el = doc.css("#context-tree-nav .tab-pane.active").first)
           tree_el.inner_html = ""
-          tree_el << fragment.css("#toc").first
+          tree_el << fragment.css("#toc").first if fragment.css("#toc").first
         end
       end
       # rubocop:enable Metrics/AbcSize
 
       def update_package_html_pdf
         build_package_html_toc
-        doc.css("m-website-header").first.replace(fragment.css("header").first)
-        doc.css("footer").first.remove
-        doc.css("div.x-printable").remove
+        doc.css("m-website-header").first&.replace(fragment.css("header").first)
+        doc.css("footer").first&.remove
+        doc.css("div.x-printable").first&.remove
         doc.css("body a[href]").each do |link|
           if link["href"].start_with?("/")
             link["href"] = File.join("https://findingaids.lib.umich.edu/", link["href"])
