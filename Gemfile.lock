@@ -405,10 +405,12 @@ GEM
       redis (>= 4.0)
       redis-namespace (~> 1.6)
       sinatra (>= 2.0)
-    resque-scheduler (4.11.0)
+    resque-scheduler (5.0.0)
+      base64 (~> 0.1)
+      logger
       mono_logger (~> 1.0)
-      redis (>= 3.3)
-      resque (>= 1.27)
+      redis (>= 4.0)
+      resque (>= 3.0)
       rufus-scheduler (~> 3.2, != 3.3)
     resque-web (0.0.12)
       coffee-rails
@@ -812,7 +814,7 @@ CHECKSUMS
   reline (0.6.3) sha256=1198b04973565b36ec0f11542ab3f5cfeeec34823f4e54cebde90968092b1835
   responders (3.2.0) sha256=89c2d6ac0ae16f6458a11524cae4a8efdceba1a3baea164d28ee9046bd3df55a
   resque (3.0.0) sha256=ee6f02b61b2af48c587587dd6fb3b9b5eca94e348c568aed8e9d7e7872b2f713
-  resque-scheduler (4.11.0) sha256=4e8bf3acdccc2cfe02141d2717fc03dc6e0cdd887c0d6c0fa92b394aa70f32a1
+  resque-scheduler (5.0.0) sha256=f199df7ae73b5c7972acd27c7e2f8a1f1ff4339eca5b794d0b2ba74c3d998aff
   resque-web (0.0.12) sha256=3a282638983c760927156f4ddd7273d4b07526579f8e81b03577950c57a4c472
   retriable (4.1.1) sha256=6c25151721cba9d5d1c0aa9dbb38012aee36dd84752069f13dec98e7f8b51cec
   rexml (3.4.4) sha256=19e0a2c3425dfbf2d4fc1189747bdb2f849b6c5e74180401b15734bc97b5d142
