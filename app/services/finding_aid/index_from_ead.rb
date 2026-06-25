@@ -18,9 +18,8 @@ module FindingAid
             "repository" => repo_id
           )
 
-          # Use the arclight gem's bundled EAD2 traject config directly so we
-          # don't maintain a stale copy in config/traject/.
-          indexer.load_config_file(Arclight::Engine.root.join("lib/arclight/traject/ead2_config.rb"))
+          # Initializer args override config-provided settings.
+          indexer.load_config_file(Rails.root.join("config/traject/ead2_config.rb"))
 
           # Process one source record through traject and writer.
           context = indexer.process_record(doc)
