@@ -67,6 +67,36 @@ RSpec.describe Box::Package::Generator do
     expect(doc.css('m-website-header')).to be_empty
     expect(doc.css('header').first).to be_truthy
   end
+
+  it 'orders nested components using parent_ids without parent_ids_keyed' do
+    allow(generator).to receive(:fetch_components).and_call_original
+
+    collection_doc = SolrDocument.new(
+      'id': 'umich-root',
+      'ead_ssi': 'umich-root'
+    )
+    parent_component = SolrDocument.new(
+      'id': 'umich-root_parent',
+      'ref_ssm': [ 'parent' ],
+      'component_level_isim': [ 1 ]
+    )
+    child_component = SolrDocument.new(
+      'id': 'umich-root_child',
+      'ref_ssm': [ 'child' ],
+      'component_level_isim': [ 2 ],
+      'parent_ids_ssim': [ 'umich-root', 'umich-root_parent' ]
+    )
+
+    first_page = instance_double(Blacklight::Solr::Response, documents: [ collection_doc, parent_component, child_component ], total: 3)
+    empty_page = instance_double(Blacklight::Solr::Response, documents: [], total: 3)
+    index = instance_double(Box::Package::Index)
+    allow(index).to receive(:search).and_return(first_page, empty_page)
+    allow(generator).to receive(:index).and_return(index)
+    generator.collection = SolrDocument.new('id': 'umich-root')
+
+    components = generator.send(:fetch_components, 'umich-root')
+    expect(components.map(&:id)).to eq [ 'umich-root_parent', 'umich-root_child' ]
+  end
 end
 
 def mock_get(url) # rubocop:disable Metrics/MethodLength
