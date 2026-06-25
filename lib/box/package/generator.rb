@@ -132,7 +132,7 @@ module Box
         Dir.chdir working_path_name do
           elapsed_time = Benchmark.realtime do
             cmd = [
-              "wkhtmltopdf",
+              wkhtmltopdf_command,
               "--page-size", "Letter",
               "--enable-internal-links",
               "--enable-local-file-access",
@@ -189,6 +189,16 @@ module Box
         return collection.document_id if collection.respond_to?(:document_id)
 
         collection.id
+      end
+
+      def wkhtmltopdf_command
+        spec = Gem::Specification.find_by_name("wkhtmltopdf-binary-arm64")
+        binary = File.join(spec.bin_dir, "wkhtmltopdf")
+        return binary if File.executable?(binary)
+
+        "wkhtmltopdf"
+      rescue Gem::LoadError
+        "wkhtmltopdf"
       end
 
       def get(url)

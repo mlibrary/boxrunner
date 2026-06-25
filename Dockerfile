@@ -24,6 +24,7 @@ RUN apt-get update -qq && \
 ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
+    PATH="/usr/local/bundle/ruby/3.4.0/bin:/usr/local/bundle/bin:$PATH" \
     BUNDLE_WITHOUT="development" \
     LD_PRELOAD="/usr/local/lib/libjemalloc.so"
 
