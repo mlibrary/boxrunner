@@ -7,4 +7,6 @@ load_config_file Arclight::Engine.root.join("lib/arclight/traject/ead2_config.rb
 # ==========================================
 # Boxrunner-specific additions / overrides
 # ==========================================
-
+to_field 'component_level_isim' do |record, accumulator|
+  accumulator << 1 + NokogiriXpathExtensions.new.is_component(record.ancestors).count
+end
