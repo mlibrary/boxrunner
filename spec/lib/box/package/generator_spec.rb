@@ -97,6 +97,32 @@ RSpec.describe Box::Package::Generator do
     components = generator.send(:fetch_components, 'umich-root')
     expect(components.map(&:id)).to eq [ 'umich-root_parent', 'umich-root_child' ]
   end
+
+  it 'handles component hierarchies with no level-1 root' do
+    allow(generator).to receive(:fetch_components).and_call_original
+
+    orphan_parent = SolrDocument.new(
+      'id': 'umich-root_l2',
+      'component_level_isim': [ 2 ],
+      'parent_ids_ssim': [ 'umich-root' ]
+    )
+    orphan_child = SolrDocument.new(
+      'id': 'umich-root_l3',
+      'component_level_isim': [ 3 ],
+      'parent_ids_ssim': [ 'umich-root', 'umich-root_l2' ]
+    )
+
+    first_page = instance_double(Blacklight::Solr::Response, documents: [ orphan_parent, orphan_child ], total: 2)
+    empty_page = instance_double(Blacklight::Solr::Response, documents: [], total: 2)
+    index = instance_double(Box::Package::Index)
+    allow(index).to receive(:search).and_return(first_page, empty_page)
+    allow(generator).to receive(:index).and_return(index)
+    generator.collection = SolrDocument.new('id': 'umich-root')
+
+    components = nil
+    expect { components = generator.send(:fetch_components, 'umich-root') }.not_to raise_error
+    expect(components.map(&:id)).to eq [ 'umich-root_l2', 'umich-root_l3' ]
+  end
 end
 
 def mock_get(url) # rubocop:disable Metrics/MethodLength

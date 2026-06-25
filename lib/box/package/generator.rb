@@ -234,7 +234,7 @@ module Box
 
             tmp[doc.component_level] = [] if tmp[doc.component_level].nil?
             tmp[doc.component_level] << doc
-            tmp_map[doc.reference] = doc
+            tmp_map[doc.reference] = doc if doc.reference.present?
             tmp_map_by_id[doc.id] = doc
           end
           start += 1000
@@ -244,9 +244,11 @@ module Box
 
         return [] if tmp.keys.empty?
 
+        root_component_level = tmp.keys.min
+
         # now attach child components
         tmp.keys.sort.each do |component_level|
-          next if component_level == 1
+          next if component_level == root_component_level
 
           tmp[component_level].each do |doc|
             # find the parent_doc because nothing is easy
@@ -258,17 +260,19 @@ module Box
 
             next unless parent_doc
 
-            component_mapper[parent_doc.reference] = [] if component_mapper[parent_doc.reference].nil?
-            component_mapper[parent_doc.reference].unshift doc
+            parent_key = parent_doc.reference.presence || parent_doc.id
+            component_mapper[parent_key] = [] if component_mapper[parent_key].nil?
+            component_mapper[parent_key].unshift doc
           end
         end
 
         # now flatten this into components?
-        queue = [ tmp[1] ].flatten
+        queue = Array(tmp[root_component_level]).dup
         until queue.empty?
           doc = queue.shift
           components << doc
-          component_mapper.fetch(doc.reference, []).each do |v|
+          node_key = doc.reference.presence || doc.id
+          component_mapper.fetch(node_key, []).each do |v|
             queue.unshift v
           end
         end
