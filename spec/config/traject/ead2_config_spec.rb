@@ -21,7 +21,7 @@ RSpec.describe "config/traject/ead2_config.rb" do
         provide "repository", "bhl"
         provide "writer_class_name", "Traject::ArrayWriter"
       end
-      i.load_config_file(Rails.root.join("config/traject/ead2_config.rb"))
+      i.load_config_file(Arclight::Engine.root.join("lib/arclight/traject/ead2_config.rb"))
     end
   end
 
