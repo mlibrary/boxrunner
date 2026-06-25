@@ -213,14 +213,6 @@ RSpec.describe "config/traject/ead2_config.rb" do
       it "has parent_ssi pointing to root id" do
         expect(component["parent_ssi"]).to include "umich-bhl-032"
       end
-
-      it "has component_level_isim pointing to root id" do
-        expect(component["component_level_isim"]).to include "umich-bhl-032"
-      end
     end
   end
-  # to_field 'component_level_isim' do |record, accumulator|
-  #  accumulator << 1 + NokogiriXpathExtensions.new.is_component(record.ancestors).count
-  # end
-
 end
