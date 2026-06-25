@@ -159,7 +159,7 @@ module Box
       private
 
       def generate_output_filename(ext)
-        filename = File.join(finding_aid_data_path, "pdf", collection_repository_id, "#{collection.document_id}#{ext}")
+        filename = File.join(finding_aid_data_path, "pdf", collection_repository_id, "#{collection_document_id}#{ext}")
         filename = File.join(Rails.root, filename) if filename.start_with?("./")
         filename
       end
@@ -182,7 +182,13 @@ module Box
       end
 
       def generate_local_html_filename
-        File.join(working_path_name, "#{@collection.document_id}.local.html")
+        File.join(working_path_name, "#{collection_document_id}.local.html")
+      end
+
+      def collection_document_id
+        return collection.document_id if collection.respond_to?(:document_id)
+
+        collection.id
       end
 
       def get(url)

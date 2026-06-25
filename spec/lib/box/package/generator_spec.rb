@@ -98,6 +98,22 @@ RSpec.describe Box::Package::Generator do
     expect { generator.build_html }.not_to raise_error
   end
 
+  it 'uses id when SolrDocument does not implement document_id' do
+    allow(generator).to receive(:fetch_doc) do |_identifier| # rubocop:disable RSpec/SubjectStub
+      SolrDocument.new(
+        'id': 'umich-test-9999',
+        'normalized_title_ssm': [ 'Finding Aid' ],
+        'ead_author_ssm': [ 'Finding Aid written by E. A. Document' ],
+        'repository_ssm': [ 'University of Michigan Bentley Historical Library' ]
+      )
+    end
+
+    allow(generator).to receive(:fetch_components) { [] }
+
+    expect { generator.build_html }.not_to raise_error
+    expect(generator.send(:generate_local_html_filename)).to end_with('umich-test-9999.local.html')
+  end
+
   it 'orders nested components using parent_ids without parent_ids_keyed' do
     allow(generator).to receive(:fetch_components).and_call_original
 
