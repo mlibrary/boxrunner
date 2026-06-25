@@ -18,9 +18,8 @@ RSpec.describe FindingAid::IndexFromEad do
   end
 
   context 'when source open succeed' do
-
     let(:src_path) { Rails.root.join('spec/fixtures/bhl/umich-bhl-032.xml') }
-    let(:dest_path) { Rails.root.join('data/xml/bhl/umich-bhl-032.xml').to_s}
+    let(:dest_path) { Rails.root.join('data/xml/bhl/umich-bhl-032.xml').to_s }
     let(:dest_dir) { Rails.root.join('data/xml/bhl').to_s  }
 
     before do

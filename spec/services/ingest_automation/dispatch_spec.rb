@@ -46,5 +46,4 @@ RSpec.describe IngestAutomation::Dispatch do
 
     expect(logger).to have_received(:error).with("Unknown ingest event for Finding Aid -- event: unknown.event, details: #{details.inspect}")
   end
-
 end

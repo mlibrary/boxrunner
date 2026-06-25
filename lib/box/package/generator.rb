@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'arclight'
-require 'benchmark'
-require 'json'
-require 'fileutils'
-require 'nokogiri'
-require 'deprecation'
-require 'uri'
-require 'net/http'
+require "arclight"
+require "benchmark"
+require "json"
+require "fileutils"
+require "nokogiri"
+require "deprecation"
+require "uri"
+require "net/http"
 
 Deprecation.default_deprecation_behavior = :silence
 
@@ -44,7 +44,7 @@ module Box
         @identifier = identifier
         @collection = nil
         @session = ActionDispatch::Integration::Session.new(Rails.application)
-        @session.host = 'findingaids.lib.umich.edu'
+        @session.host = "findingaids.lib.umich.edu"
         @session.https!(true)
         @fonts = []
       end
@@ -75,11 +75,11 @@ module Box
       def generate_html
         build_html
 
-        output_filename = generate_output_filename('.html')
+        output_filename = generate_output_filename(".html")
         FileUtils.makedirs(File.dirname(output_filename)) unless Dir.exist?(File.dirname(output_filename))
 
         # serialize the viewable HTML
-        File.open(output_filename, 'w') do |f|
+        File.open(output_filename, "w") do |f|
           f.puts doc.serialize
         end
 
@@ -90,14 +90,14 @@ module Box
         # build the source in tmp
         FileUtils.mkdir_p(working_path_name)
         Dir.chdir(working_path_name) do
-          FileUtils.mkdir_p('assets')
+          FileUtils.mkdir_p("assets")
 
           elapsed_time = Benchmark.realtime do
             update_package_html_pdf
             update_package_styles_pdf
             update_package_scripts_pdf
             # set the media
-            doc.root['data-media'] = 'print'
+            doc.root["data-media"] = "print"
           end
           puts "UM-Arclight generate package: #{collection.id} : update HTML for PDF (in #{elapsed_time.round(3)} secs)."
         end
@@ -106,7 +106,7 @@ module Box
       def generate_pdf_html
         build_pdf_html
         local_html_filename = generate_local_html_filename # "#{collection.document_id}.local.html"
-        File.open(local_html_filename, 'w') do |f|
+        File.open(local_html_filename, "w") do |f|
           f.puts doc.serialize
         end
       end
@@ -125,7 +125,7 @@ module Box
         build_pdf_prereq
 
         local_html_filename = generate_local_html_filename
-        output_filename = generate_output_filename('.pdf')
+        output_filename = generate_output_filename(".pdf")
         FileUtils.mkdir_p(File.dirname(output_filename))
 
         Dir.chdir working_path_name do
@@ -147,26 +147,26 @@ module Box
       private
 
       def generate_output_filename(ext)
-        filename = File.join(finding_aid_data_path, 'pdf', collection_repository_id, "#{collection.document_id}#{ext}")
-        filename = File.join(Rails.root, filename) if filename.start_with?('./')
+        filename = File.join(finding_aid_data_path, "pdf", collection_repository_id, "#{collection.document_id}#{ext}")
+        filename = File.join(Rails.root, filename) if filename.start_with?("./")
         filename
       end
 
       def working_path_name
         # File.join(Rails.root, "tmp", "pdf")
         File.writable?(File.join(finding_aid_data_path)) ?
-          File.join(finding_aid_data_path, 'pdf', 'tmp', collection_repository_id) :
+          File.join(finding_aid_data_path, "pdf", "tmp", collection_repository_id) :
           File.join(Rails.root, "tmp", "pdf")
       end
 
       def finding_aid_data_path
-        ENV.fetch("FINDING_AID_DATA", Rails.root.join('data').to_s)
+        ENV.fetch("FINDING_AID_DATA", Rails.root.join("data").to_s)
       end
       # TODO: this is a hack to get the repository_id from the collection.
       def collection_repository_id
         return collection.repository_id if collection.respond_to?(:repository_id)
 
-        Array(collection['repository_ssm']).first.to_s.parameterize.presence || 'repository'
+        Array(collection["repository_ssm"]).first.to_s.parameterize.presence || "repository"
       end
 
       def generate_local_html_filename
@@ -174,8 +174,8 @@ module Box
       end
 
       def get(url)
-        if url.start_with?('/assets/') && File.exist?(File.join(Rails.root, 'public', url))
-          contents = File.read(File.join(Rails.root, 'public', url))
+        if url.start_with?("/assets/") && File.exist?(File.join(Rails.root, "public", url))
+          contents = File.read(File.join(Rails.root, "public", url))
           response = OpenStruct.new
           response.body = contents
           return response
@@ -186,8 +186,8 @@ module Box
 
       def fetch_doc(id)
         params = {
-          fl: '*', # COMPONENT_FIELDS.join(','),
-          q: ["id:#{id}"],
+          fl: "*", # COMPONENT_FIELDS.join(','),
+          q: [ "id:#{id}" ],
           start: 0,
           rows: 1
         }
@@ -199,9 +199,9 @@ module Box
       # rubocop:disable Metrics/MethodLength
       def fetch_components(id)
         params = {
-          fl: '*',
-          q: ["ead_ssi:#{id}"],
-          sort: 'sort_ii asc, title_sort asc',
+          fl: "*",
+          q: [ "ead_ssi:#{id}" ],
+          sort: "sort_ii asc, title_sort asc",
           start: 0,
           rows: 1000
         }
@@ -250,7 +250,7 @@ module Box
         end
 
         # now flatten this into components?
-        queue = [tmp[1]].flatten
+        queue = [ tmp[1] ].flatten
         until queue.empty?
           doc = queue.shift
           components << doc
@@ -266,25 +266,25 @@ module Box
 
       def render_fragment(variables)
         fragment_html = CatalogController.renderer.render(
-          template: 'arclight/fragments/fragment',
+          template: "arclight/fragments/fragment",
           assigns: variables,
           layout: false,
-          formats: [:html]
+          formats: [ :html ]
         )
         Nokogiri::HTML5(fragment_html)
       end
 
       def update_navigation_links
-        doc.css('#about-collection-nav a').each do |link|
-          href = link['href']
-          link['href'] = '#' + href.split('#').last
+        doc.css("#about-collection-nav a").each do |link|
+          href = link["href"]
+          link["href"] = "#" + href.split("#").last
         end
       end
 
       # rubocop:disable Metrics/AbcSize
       def update_package_html
         last_style_el = doc.xpath('/html/head/link[@rel="stylesheet"]').last
-        last_style_el.add_next_sibling(fragment.css('#utility-styles').first)
+        last_style_el.add_next_sibling(fragment.css("#utility-styles").first)
         @chunks = doc.fragment
         asset_links = doc.xpath('/html/head/link[starts-with(@href, "/assets")]')
         # add the placeholder
@@ -303,31 +303,31 @@ module Box
         doc.css('meta[name="csrf-param"]').first&.unlink
         doc.css('meta[name="csrf-token"]').first&.unlink
 
-        doc.css('#summary dl').first << fragment.css('dl#ead_author_block dt,dl#ead_author_block dd')
-        if (contents_el = doc.css('div.al-contents').first)
-          contents_el.replace(fragment.css('div.al-contents-ish').first)
+        doc.css("#summary dl").first << fragment.css("dl#ead_author_block dt,dl#ead_author_block dd")
+        if (contents_el = doc.css("div.al-contents").first)
+          contents_el.replace(fragment.css("div.al-contents-ish").first)
         end
-        doc.css('.card-img').first.remove
-        doc.css('#navigate-collection-toggle').first.remove
-        if (tree_el = doc.css('#context-tree-nav .tab-pane.active').first)
-          tree_el.inner_html = ''
-          tree_el << fragment.css('#toc').first
+        doc.css(".card-img").first.remove
+        doc.css("#navigate-collection-toggle").first.remove
+        if (tree_el = doc.css("#context-tree-nav .tab-pane.active").first)
+          tree_el.inner_html = ""
+          tree_el << fragment.css("#toc").first
         end
       end
       # rubocop:enable Metrics/AbcSize
 
       def update_package_html_pdf
         build_package_html_toc
-        doc.css('m-website-header').first.replace(fragment.css('header').first)
-        doc.css('footer').first.remove
-        doc.css('div.x-printable').remove
-        doc.css('body a[href]').each do |link|
-          if link['href'].start_with?('/')
-            link['href'] = File.join('https://findingaids.lib.umich.edu/', link['href'])
+        doc.css("m-website-header").first.replace(fragment.css("header").first)
+        doc.css("footer").first.remove
+        doc.css("div.x-printable").remove
+        doc.css("body a[href]").each do |link|
+          if link["href"].start_with?("/")
+            link["href"] = File.join("https://findingaids.lib.umich.edu/", link["href"])
           end
-          if link['href'].include?('%5B')
+          if link["href"].include?("%5B")
             # gambling
-            link['href'] = CGI.unescape(link['href'])
+            link["href"] = CGI.unescape(link["href"])
           end
         end
         # ARC-114 Chinese characters were missing (Hack to include font as fallback font)
@@ -336,17 +336,17 @@ module Box
 
       def build_package_html_toc
         # rearrange the various contents links
-        doc.css('.access-preview-snippet').first.inner_html = '<div id="toc"><ul class="list-unbulleted"></ul></ul>'
-        current_ul = doc.css('#toc ul').first
+        doc.css(".access-preview-snippet").first.inner_html = '<div id="toc"><ul class="list-unbulleted"></ul></ul>'
+        current_ul = doc.css("#toc ul").first
         contents_li = nil
-        doc.css('#about-collection-nav li.nav-item').each do |li|
+        doc.css("#about-collection-nav li.nav-item").each do |li|
           current_ul << li
-          contents_li = li if li.css('a').first['href'] == '#contents'
+          contents_li = li if li.css("a").first["href"] == "#contents"
         end
         return unless contents_li
 
-        if (contents_ul = doc.css('#sidebar #toc > ul').first)
-          contents_ul['class'] = 'list-unbulleted'
+        if (contents_ul = doc.css("#sidebar #toc > ul").first)
+          contents_ul["class"] = "list-unbulleted"
           contents_li << contents_ul
         end
       end
@@ -355,7 +355,7 @@ module Box
       # rubocop:disable Metrics/MethodLength
       def update_package_styles_pdf
         # restore the stylesheet links for the PDF
-        placeholder_el = doc.css('style#placeholder').first
+        placeholder_el = doc.css("style#placeholder").first
 
         doc.css('link[rel="stylesheet"][href^="https://"]').each do |link|
           link.unlink
@@ -367,26 +367,26 @@ module Box
         placeholder_el.add_next_sibling '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">'
         # TODO: another hack to hide the AssetNotFound error
         begin
-          placeholder_el.add_next_sibling CatalogController.helpers.stylesheet_link_tag('print')
+          placeholder_el.add_next_sibling CatalogController.helpers.stylesheet_link_tag("print")
         rescue Sprockets::Rails::Helper::AssetNotFound
           # print.css is optional in test and some packaging environments
         end
 
         # cache the assets locally
-        doc.xpath('/html/head/link').each do |link|
-          next unless link['rel'] == 'stylesheet'
+        doc.xpath("/html/head/link").each do |link|
+          next unless link["rel"] == "stylesheet"
           # next unless link['href'].start_with?('/assets/', 'https://')
-          filename = if link['href'].start_with?('/assets/')
-            link['href'].split(/[\?#]/).first.gsub('/assets', '')
+          filename = if link["href"].start_with?("/assets/")
+            link["href"].split(/[\?#]/).first.gsub("/assets", "")
           else
-            ('/' + link['href'].split('#').first.gsub(/[^\w\.]/, '-'))
+            ("/" + link["href"].split("#").first.gsub(/[^\w\.]/, "-"))
           end
-          filename += '.css' if link['rel'] == 'stylesheet' && !filename.end_with?('.css')
+          filename += ".css" if link["rel"] == "stylesheet" && !filename.end_with?(".css")
 
           # only cache as needed
           download_and_cache(link, filename) unless File.exist?("./assets#{filename}")
 
-          link['href'] = "./assets#{filename}"
+          link["href"] = "./assets#{filename}"
           placeholder_el.add_next_sibling link
         end
         @fonts.each do |filename|
@@ -407,10 +407,10 @@ module Box
       end
 
       def download_and_cache(link, filename)
-        if link['href'].start_with?('/assets/')
-          response = get(link['href'])
+        if link["href"].start_with?("/assets/")
+          response = get(link["href"])
         else
-          uri = URI(link['href'])
+          uri = URI(link["href"])
           response = Net::HTTP.get_response(uri)
           # STDERR.puts "-- FETCHING #{link['href']} :: #{response.is_a?(Net::HTTPSuccess)}"
           return unless response.is_a?(Net::HTTPSuccess)
@@ -421,11 +421,11 @@ module Box
 
         FileUtils.makedirs("./assets#{File.dirname(filename)}") unless Dir.exist?("./assets/#{File.dirname(filename)}")
 
-        File.open("./assets/#{filename}", 'wb') do |f|
+        File.open("./assets/#{filename}", "wb") do |f|
           f.puts buffer
         end
 
-        if filename.include?('.css') && filename.include?('font')
+        if filename.include?(".css") && filename.include?("font")
           @fonts << filename
         end
       end
@@ -439,16 +439,16 @@ module Box
 
           matches.each do |match|
             asset_path = match[0].delete('"')
-            next unless asset_path.start_with?('/assets/', 'https://')
+            next unless asset_path.start_with?("/assets/", "https://")
 
-            asset_filename = if asset_path.start_with?('/assets/')
-              asset_path.split(/[\?#]/).first.gsub('/assets', '')
+            asset_filename = if asset_path.start_with?("/assets/")
+              asset_path.split(/[\?#]/).first.gsub("/assets", "")
             else
-              ('/' + asset_path.gsub(/[^\w\.]/, '-'))
+              ("/" + asset_path.gsub(/[^\w\.]/, "-"))
             end
 
             unless File.exist?("./#{asset_filename}")
-              resource = if asset_path.start_with?('/assets/')
+              resource = if asset_path.start_with?("/assets/")
                 response = get(asset_path)
                 response.body
               else
@@ -456,9 +456,9 @@ module Box
                 response = Net::HTTP.get_response(uri)
                 # STDERR.puts "-- +++ FETCHING #{asset_path} :: #{response.code} :: #{response['content-type']}"
                 next unless response.is_a?(Net::HTTPSuccess)
-                asset_filename += '.css' if response['content-type'].include?('text/css') && !asset_filename.end_with?('.css')
-                asset_filename += '.woff2' if response['content-type'].include?('font/woff2') && !asset_filename.end_with?('.woff2')
-                if response['content-type'].include?('text/css')
+                asset_filename += ".css" if response["content-type"].include?("text/css") && !asset_filename.end_with?(".css")
+                asset_filename += ".woff2" if response["content-type"].include?("font/woff2") && !asset_filename.end_with?(".woff2")
+                if response["content-type"].include?("text/css")
                   download_and_update_urls(response.body)
                 else
                   response.body
@@ -466,9 +466,9 @@ module Box
               end
 
               FileUtils.makedirs("./assets#{File.dirname(asset_filename)}") unless Dir.exist?(File.dirname("./assets#{asset_filename}"))
-              @fonts << asset_filename if asset_filename.include?('font') && asset_filename.include?('.css')
+              @fonts << asset_filename if asset_filename.include?("font") && asset_filename.include?(".css")
 
-              File.open("./assets#{asset_filename}", 'wb') do |f|
+              File.open("./assets#{asset_filename}", "wb") do |f|
                 f.puts resource
               end
             end
@@ -485,7 +485,7 @@ module Box
 
       def update_package_scripts_pdf
         # remove the script tags
-        doc.xpath('/html/head/script').each do |script| # rubocop:disable Style/SymbolProc
+        doc.xpath("/html/head/script").each do |script| # rubocop:disable Style/SymbolProc
           script.remove
         end
       end
@@ -505,25 +505,25 @@ module Box
 
       def setup(**kw)
         identifiers = if kw[:eadid]
-          [kw[:eadid]]
+          [ kw[:eadid] ]
         else
           fetch_collection_identifiers(kw[:repository_ssm])
         end
 
         identifiers.each do |identifier|
           puts "UM-Arclight queue package: #{identifier}"
-          ::PackageFindingAidJob.perform_later(identifier, kw.fetch(:format, 'html'))
+          ::PackageFindingAidJob.perform_later(identifier, kw.fetch(:format, "html"))
         end
       end
 
       def fetch_collection_identifiers(repository_ssm)
         params = {
-          fl: 'id',
-          q: ['level_ssm:collection'],
+          fl: "id",
+          q: [ "level_ssm:collection" ],
           start: 0,
           rows: 1000
         }
-        params['fq'] = ["repository_ssm:\"#{repository_ssm}\""] if repository_ssm
+        params["fq"] = [ "repository_ssm:\"#{repository_ssm}\"" ] if repository_ssm
         identifiers = []
         response = index.search(params)
         start = 0

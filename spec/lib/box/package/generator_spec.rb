@@ -11,9 +11,9 @@ RSpec.describe Box::Package::Generator do
     allow(generator).to receive(:fetch_doc) do |_identifier| # rubocop:disable RSpec/SubjectStub
       SolrDocument.new(
         'id': 'umich-test-9999',
-        'normalized_title_ssm': ['Finding Aid'],
-        'ead_author_ssm': ['Finding Aid written by E. A. Document'],
-        'repository_ssm': ['University of Michigan Bentley Historical Library']
+        'normalized_title_ssm': [ 'Finding Aid' ],
+        'ead_author_ssm': [ 'Finding Aid written by E. A. Document' ],
+        'repository_ssm': [ 'University of Michigan Bentley Historical Library' ]
       )
     end
 
@@ -21,10 +21,10 @@ RSpec.describe Box::Package::Generator do
       [
         SolrDocument.new(
           'id': 'umich-test-9999-01',
-          'normalized_title_ssm': ['Component 1.0'],
-          "component_level_isim": [1],
-          'total_digital_object_count_isim': [1],
-          "parent_ssim": ['umich-test-9999'],
+          'normalized_title_ssm': [ 'Component 1.0' ],
+          "component_level_isim": [ 1 ],
+          'total_digital_object_count_isim': [ 1 ],
+          "parent_ssim": [ 'umich-test-9999' ],
           'digital_objects_ssm': [
             {
               'label': 'Digital Object',
@@ -33,7 +33,7 @@ RSpec.describe Box::Package::Generator do
               'xpointer': nil
             }.to_json
           ],
-          'repository_ssm': ['University of Michigan Bentley Historical Library']
+          'repository_ssm': [ 'University of Michigan Bentley Historical Library' ]
         )
       ]
     end
