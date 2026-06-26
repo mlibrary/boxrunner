@@ -68,6 +68,90 @@ RSpec.describe Box::Package::Generator do
     expect(doc.css('header').first).to be_truthy
   end
 
+  it 'does not fail when the catalog page lacks optional html nodes' do
+    allow(generator).to receive(:get) do |url| # rubocop:disable RSpec/SubjectStub
+      response = double('response') # rubocop:disable RSpec/VerifiedDoubles
+      output = if url.start_with?('/catalog')
+        <<-HTML
+        <html>
+          <head>
+            <title>Finding Aid</title>
+            <meta name="csrf-param">
+            <meta name="csrf-token">
+          </head>
+          <body>
+            <m-website-header name="Finding Aids"></m-website-header>
+            <div id="summary"><dl></dl></div>
+            <div class="al-contents"></div>
+            <div id="context-tree-nav"><div class="tab-pane active"></div></div>
+            <div class="access-preview-snippet"></div>
+          </body>
+        </html>
+        HTML
+      else
+        mock_get(url)
+      end
+      allow(response).to receive(:body) { output }
+      response
+    end
+
+    expect { generator.build_html }.not_to raise_error
+  end
+
+  it 'does not fail when the catalog page lacks access-preview-snippet' do
+    allow(generator).to receive(:get) do |url| # rubocop:disable RSpec/SubjectStub
+      response = double('response') # rubocop:disable RSpec/VerifiedDoubles
+      output = if url.start_with?('/catalog')
+        <<-HTML
+        <html>
+          <head>
+            <title>Finding Aid</title>
+            <link rel="stylesheet" href="/assets/styles.css" />
+          </head>
+          <body>
+            <m-website-header name="Finding Aids"></m-website-header>
+            <div id="summary"><dl></dl></div>
+            <div class="al-contents"></div>
+            <div id="context-tree-nav"><div class="tab-pane active"></div></div>
+          </body>
+        </html>
+        HTML
+      else
+        mock_get(url)
+      end
+      allow(response).to receive(:body) { output }
+      response
+    end
+
+    expect { generator.build_html }.not_to raise_error
+  end
+
+  it 'uses id when SolrDocument does not implement document_id' do
+    allow(generator).to receive(:fetch_doc) do |_identifier| # rubocop:disable RSpec/SubjectStub
+      SolrDocument.new(
+        'id': 'umich-test-9999',
+        'normalized_title_ssm': [ 'Finding Aid' ],
+        'ead_author_ssm': [ 'Finding Aid written by E. A. Document' ],
+        'repository_ssm': [ 'University of Michigan Bentley Historical Library' ]
+      )
+    end
+
+    allow(generator).to receive(:fetch_components) { [] }
+
+    expect { generator.build_html }.not_to raise_error
+    expect(generator.send(:generate_local_html_filename)).to end_with('umich-test-9999.local.html')
+  end
+
+  it 'prefers chromium for PDF rendering when available' do
+    allow(File).to receive(:executable?).with('/usr/bin/chromium').and_return(true)
+    allow(File).to receive(:executable?).with('/usr/bin/chromium-browser').and_return(false)
+
+    cmd, env = generator.send(:pdf_render_command, 'input.local.html', 'output.pdf')
+    expect(cmd.first).to eq('/usr/bin/chromium')
+    expect(cmd).to include('--headless', '--no-sandbox', '--print-to-pdf=output.pdf')
+    expect(env).to eq({})
+  end
+
   it 'orders nested components using parent_ids without parent_ids_keyed' do
     allow(generator).to receive(:fetch_components).and_call_original
 
@@ -96,6 +180,32 @@ RSpec.describe Box::Package::Generator do
 
     components = generator.send(:fetch_components, 'umich-root')
     expect(components.map(&:id)).to eq [ 'umich-root_parent', 'umich-root_child' ]
+  end
+
+  it 'handles component hierarchies with no level-1 root' do
+    allow(generator).to receive(:fetch_components).and_call_original
+
+    orphan_parent = SolrDocument.new(
+      'id': 'umich-root_l2',
+      'component_level_isim': [ 2 ],
+      'parent_ids_ssim': [ 'umich-root' ]
+    )
+    orphan_child = SolrDocument.new(
+      'id': 'umich-root_l3',
+      'component_level_isim': [ 3 ],
+      'parent_ids_ssim': [ 'umich-root', 'umich-root_l2' ]
+    )
+
+    first_page = instance_double(Blacklight::Solr::Response, documents: [ orphan_parent, orphan_child ], total: 2)
+    empty_page = instance_double(Blacklight::Solr::Response, documents: [], total: 2)
+    index = instance_double(Box::Package::Index)
+    allow(index).to receive(:search).and_return(first_page, empty_page)
+    allow(generator).to receive(:index).and_return(index)
+    generator.collection = SolrDocument.new('id': 'umich-root')
+
+    components = nil
+    expect { components = generator.send(:fetch_components, 'umich-root') }.not_to raise_error
+    expect(components.map(&:id)).to eq [ 'umich-root_l2', 'umich-root_l3' ]
   end
 end
 

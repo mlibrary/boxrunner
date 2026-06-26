@@ -46,7 +46,8 @@ services:
       - .env
     volumes:
       - .:/rails
-    command: bundle exec rake environment resque:work
+    command: >
+      bash -lc "bin/rails db:prepare && bundle exec rake environment resque:work"
   resque-web:
     depends_on:
       redis:
@@ -60,7 +61,8 @@ services:
       - .env
     ports:
       - '5678:5678'
-    command: bundle exec rackup -o 0.0.0.0 -p 5678 config/resque_web.ru
+    command: >
+      bash -lc "bin/rails db:prepare && bundle exec rackup -o 0.0.0.0 -p 5678 config/resque_web.ru"
   solr:
     depends_on:
       zookeeper:

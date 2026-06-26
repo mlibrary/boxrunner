@@ -131,19 +131,8 @@ module Box
 
         Dir.chdir working_path_name do
           elapsed_time = Benchmark.realtime do
-            cmd = [
-              "wkhtmltopdf",
-              "--page-size", "Letter",
-              "--enable-internal-links",
-              "--enable-local-file-access",
-              "--margin-top", "20mm",
-              "--margin-bottom", "20mm",
-              "--margin-right", "20mm",
-              "--margin-left", "20mm",
-              local_html_filename,
-              output_filename
-            ]
-            stdout_and_stderr, process_status = Open3.capture2e(*cmd)
+            cmd, env = pdf_render_command(local_html_filename, output_filename)
+            stdout_and_stderr, process_status = Open3.capture2e(env, *cmd)
 
             if process_status.success?
               puts stdout_and_stderr
@@ -159,7 +148,7 @@ module Box
       private
 
       def generate_output_filename(ext)
-        filename = File.join(finding_aid_data_path, "pdf", collection_repository_id, "#{collection.document_id}#{ext}")
+        filename = File.join(finding_aid_data_path, "pdf", collection_repository_id, "#{collection_document_id}#{ext}")
         filename = File.join(Rails.root, filename) if filename.start_with?("./")
         filename
       end
@@ -182,7 +171,68 @@ module Box
       end
 
       def generate_local_html_filename
-        File.join(working_path_name, "#{@collection.document_id}.local.html")
+        File.join(working_path_name, "#{collection_document_id}.local.html")
+      end
+
+      def collection_document_id
+        return collection.document_id if collection.respond_to?(:document_id)
+
+        collection.id
+      end
+
+      def wkhtmltopdf_command
+        spec = Gem::Specification.find_by_name("wkhtmltopdf-binary-arm64")
+        binary = File.join(spec.bin_dir, "wkhtmltopdf")
+        return binary if File.executable?(binary)
+
+        "wkhtmltopdf"
+      rescue Gem::LoadError
+        "wkhtmltopdf"
+      end
+
+      def wkhtmltopdf_env
+        return {} unless wkhtmltopdf_command.include?("wkhtmltopdf-binary-arm64")
+
+        suffix = ENV["WKHTMLTOPDF_HOST_SUFFIX"].presence || "ubuntu_20.04_arm64"
+        { "WKHTMLTOPDF_HOST_SUFFIX" => suffix }
+      end
+
+      def pdf_render_command(local_html_filename, output_filename)
+        if (chromium = chromium_command)
+          cmd = [
+            chromium,
+            "--headless",
+            "--disable-gpu",
+            "--no-sandbox",
+            "--allow-file-access-from-files",
+            "--print-to-pdf-no-header",
+            "--print-to-pdf=#{output_filename}",
+            "file://#{File.expand_path(local_html_filename)}"
+          ]
+          [ cmd, {} ]
+        else
+          cmd = [
+            wkhtmltopdf_command,
+            "--page-size", "Letter",
+            "--enable-internal-links",
+            "--enable-local-file-access",
+            "--margin-top", "20mm",
+            "--margin-bottom", "20mm",
+            "--margin-right", "20mm",
+            "--margin-left", "20mm",
+            local_html_filename,
+            output_filename
+          ]
+          [ cmd, wkhtmltopdf_env ]
+        end
+      end
+
+      def chromium_command
+        return ENV["CHROMIUM_PATH"] if ENV["CHROMIUM_PATH"].present?
+        return "/usr/bin/chromium" if File.executable?("/usr/bin/chromium")
+        return "/usr/bin/chromium-browser" if File.executable?("/usr/bin/chromium-browser")
+
+        nil
       end
 
       def get(url)
@@ -234,7 +284,7 @@ module Box
 
             tmp[doc.component_level] = [] if tmp[doc.component_level].nil?
             tmp[doc.component_level] << doc
-            tmp_map[doc.reference] = doc
+            tmp_map[doc.reference] = doc if doc.reference.present?
             tmp_map_by_id[doc.id] = doc
           end
           start += 1000
@@ -244,9 +294,11 @@ module Box
 
         return [] if tmp.keys.empty?
 
+        root_component_level = tmp.keys.min
+
         # now attach child components
         tmp.keys.sort.each do |component_level|
-          next if component_level == 1
+          next if component_level == root_component_level
 
           tmp[component_level].each do |doc|
             # find the parent_doc because nothing is easy
@@ -258,17 +310,19 @@ module Box
 
             next unless parent_doc
 
-            component_mapper[parent_doc.reference] = [] if component_mapper[parent_doc.reference].nil?
-            component_mapper[parent_doc.reference].unshift doc
+            parent_key = parent_doc.reference.presence || parent_doc.id
+            component_mapper[parent_key] = [] if component_mapper[parent_key].nil?
+            component_mapper[parent_key].unshift doc
           end
         end
 
         # now flatten this into components?
-        queue = [ tmp[1] ].flatten
+        queue = Array(tmp[root_component_level]).dup
         until queue.empty?
           doc = queue.shift
           components << doc
-          component_mapper.fetch(doc.reference, []).each do |v|
+          node_key = doc.reference.presence || doc.id
+          component_mapper.fetch(node_key, []).each do |v|
             queue.unshift v
           end
         end
@@ -299,11 +353,22 @@ module Box
       # rubocop:disable Metrics/AbcSize
       def update_package_html
         last_style_el = doc.xpath('/html/head/link[@rel="stylesheet"]').last
-        last_style_el.add_next_sibling(fragment.css("#utility-styles").first)
+        utility_styles = fragment.css("#utility-styles").first
+        if utility_styles
+          if last_style_el
+            last_style_el.add_next_sibling(utility_styles)
+          else
+            doc.at_xpath("/html/head")&.add_child(utility_styles)
+          end
+        end
         @chunks = doc.fragment
         asset_links = doc.xpath('/html/head/link[starts-with(@href, "/assets")]')
         # add the placeholder
-        asset_links.first.add_previous_sibling '<style id="placeholder"></style>'
+        if (first_asset_link = asset_links.first)
+          first_asset_link.add_previous_sibling '<style id="placeholder"></style>'
+        else
+          doc.at_xpath("/html/head")&.add_child('<style id="placeholder"></style>')
+        end
 
         asset_links.each do |el|
           # @chunks << el
@@ -322,20 +387,20 @@ module Box
         if (contents_el = doc.css("div.al-contents").first)
           contents_el.replace(fragment.css("div.al-contents-ish").first)
         end
-        doc.css(".card-img").first.remove
-        doc.css("#navigate-collection-toggle").first.remove
+        doc.css(".card-img").first&.remove
+        doc.css("#navigate-collection-toggle").first&.remove
         if (tree_el = doc.css("#context-tree-nav .tab-pane.active").first)
           tree_el.inner_html = ""
-          tree_el << fragment.css("#toc").first
+          tree_el << fragment.css("#toc").first if fragment.css("#toc").first
         end
       end
       # rubocop:enable Metrics/AbcSize
 
       def update_package_html_pdf
         build_package_html_toc
-        doc.css("m-website-header").first.replace(fragment.css("header").first)
-        doc.css("footer").first.remove
-        doc.css("div.x-printable").remove
+        doc.css("m-website-header").first&.replace(fragment.css("header").first)
+        doc.css("footer").first&.remove
+        doc.css("div.x-printable").first&.remove
         doc.css("body a[href]").each do |link|
           if link["href"].start_with?("/")
             link["href"] = File.join("https://findingaids.lib.umich.edu/", link["href"])
@@ -351,7 +416,9 @@ module Box
 
       def build_package_html_toc
         # rearrange the various contents links
-        doc.css(".access-preview-snippet").first.inner_html = '<div id="toc"><ul class="list-unbulleted"></ul></ul>'
+        return unless (access_preview_snippet = doc.css(".access-preview-snippet").first)
+
+        access_preview_snippet.inner_html = '<div id="toc"><ul class="list-unbulleted"></ul></ul>'
         current_ul = doc.css("#toc ul").first
         contents_li = nil
         doc.css("#about-collection-nav li.nav-item").each do |li|
