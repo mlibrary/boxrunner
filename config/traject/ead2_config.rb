@@ -23,7 +23,6 @@ to_field "access_subjects_ssim", extract_xpath("/ead/archdesc/controlaccess", to
       element.xpath(".//#{selector}").map(&:text)
     end
   end.flatten!
-  p accumulator
 end
 
 to_field "access_subjects_ssm" do |_record, accumulator, context|
