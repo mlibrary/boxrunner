@@ -133,14 +133,21 @@ RSpec.describe "config/traject/ead2_config.rb" do
     it "maps access_subjects_ssim from controlaccess subjects" do
       expect(result["access_subjects_ssim"]).to include "Women in science."
       expect(result["access_subjects_ssim"]).to include "Women engineers."
+      expect(result["access_subjects_ssim"]).to_not include "Digital file formats."
     end
 
     it "maps access_subjects_ssm from access_subjects_ssim" do
       expect(result["access_subjects_ssm"]).to eq result["access_subjects_ssim"]
     end
+  end
 
-    it "maps genreform_ssim from controlaccess" do
-      expect(result["genreform_ssim"]).to include "Photographs."
+  describe "formats" do
+    it "maps genreform to formats_ssim" do
+      expect(result["formats_ssim"]).to include "Digital file formats."
+    end
+
+    it "maps formats_ssim to formats_ssm" do
+      expect(result["formats_ssim"]).to eq result["formats_ssm"]
     end
   end
 
