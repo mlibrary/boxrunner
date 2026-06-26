@@ -17,6 +17,8 @@ services:
       - REDIS_URL=redis://redis:6379/0
     env_file:
       - .env
+    volumes:
+      - .:/rails
   redis:
     image: redis:7
     healthcheck:
@@ -42,6 +44,8 @@ services:
       - QUEUE=*
     env_file:
       - .env
+    volumes:
+      - .:/rails
     command: bundle exec rake environment resque:work
   resque-web:
     depends_on:
