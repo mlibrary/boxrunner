@@ -22,4 +22,15 @@ class SolrDocument
   def collection_date
     normalized_date || collection&.normalized_date
   end
+  def repository_id
+    repository_config&.slug
+  end
+  def repository_config
+    return unless repository
+
+    @repository_config ||= Arclight::Repository.find_by(name: repository)
+  end
+  def repository
+    first('repository_ssm')
+  end
 end
