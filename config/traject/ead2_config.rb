@@ -7,4 +7,3 @@ load_config_file Arclight::Engine.root.join("lib/arclight/traject/ead2_config.rb
 # ==========================================
 # Boxrunner-specific additions / overrides
 # ==========================================
-
