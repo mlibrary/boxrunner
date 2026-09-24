@@ -43,7 +43,7 @@ gem "thruster", require: false
 
 
 # job worker queue
-gem "resque", "~> 3.0"
+gem "resque", "~> 3.1"
 gem "redis"
 gem "resque-scheduler"
 gem "resque-web"
